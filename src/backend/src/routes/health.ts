@@ -3,7 +3,7 @@ import { getMongoStatus } from '../db/mongo';
 
 export const healthRouter = Router();
 
-healthRouter.get('/', async (_req, res) => {
+healthRouter.get('/health', async (_req, res) => {
   const mongo = await getMongoStatus();
   const isHealthy = mongo.status === 'ready';
 
