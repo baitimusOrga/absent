@@ -1,7 +1,6 @@
-import { AsyncPipe, JsonPipe, NgIf } from '@angular/common';
+import { AsyncPipe, DecimalPipe, NgIf, UpperCasePipe } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { catchError, map, startWith } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -13,14 +12,16 @@ type HealthStatus = {
   environment: string;
 };
 
-type HealthQuery =
-  | { state: 'loading' }
-  | { state: 'error' }
-  | { state: 'ready'; payload: HealthStatus };
+type HealthQueryState = 'loading' | 'error' | 'ready';
+
+type HealthQuery = {
+  state: HealthQueryState;
+  payload?: HealthStatus;
+};
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HttpClientModule, AsyncPipe, JsonPipe, NgIf],
+  imports: [HttpClientModule, AsyncPipe, NgIf, UpperCasePipe, DecimalPipe],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -33,14 +34,14 @@ export class App {
   protected readonly health$: Observable<HealthQuery> = this.http
     .get<HealthStatus>(`${this.apiUrl}/health`)
     .pipe(
-      map((payload) => ({
+      map<HealthStatus, HealthQuery>((payload) => ({
         state: 'ready' as const,
         payload: {
           ...payload,
           timestamp: new Date(payload.timestamp).toLocaleString(),
         },
       })),
-      startWith({ state: 'loading' } as HealthQuery),
-      catchError(() => of({ state: 'error' } as HealthQuery))
+      startWith<HealthQuery>({ state: 'loading' }),
+      catchError(() => of<HealthQuery>({ state: 'error' }))
     );
 }
