@@ -1,0 +1,20 @@
+# Node
+node_modules/
+
+# Build output
+dist/
+coverage/
+.tmp/
+
+# Environment files
+.env
+.env.*
+!.env.development
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

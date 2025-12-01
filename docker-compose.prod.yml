@@ -1,15 +1,30 @@
 
-
 services:
-  web:
-    # 1. Target your local registry
-    image: ${REGISTRY_URL}/${APP_NAME}:latest
-    
-    # 2. Build the Dockerfile in the current directory
+  backend:
+    image: ${REGISTRY_URL:-localhost:5000}/${APP_NAME:-absent}-backend:latest
     build:
-      context: .
-      dockerfile: Dockerfile
-      
-    # 3. Expose the port
+      context: ./src/backend
+      dockerfile: Dockerfile.prod
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+      PORT: "${BACKEND_PORT:-3000}"
     ports:
-      - "8080:80"
+      - "${BACKEND_PORT:-3000}:3000"
+    restart: unless-stopped
+
+  frontend:
+    image: ${REGISTRY_URL:-localhost:5000}/${APP_NAME:-absent}-frontend:latest
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile.prod
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

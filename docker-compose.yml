@@ -1,0 +1,35 @@
+services:
+  backend:
+    container_name: "${APP_NAME:-absent}-backend"
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env.development
+    environment:
+      PORT: "${BACKEND_PORT:-3000}"
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    volumes:
+      - ./src/backend/src:/app/src
+      - /app/node_modules
+    command: npm run start:dev
+
+  frontend:
+    container_name: "${APP_NAME:-absent}-frontend"
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env.development
+    environment:
+      CHOKIDAR_USEPOLLING: "1"
+      NG_CLI_ANALYTICS: "false"
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
+    volumes:
+      - ./src/frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm run start
