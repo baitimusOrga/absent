@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
-  appName: 'Absent',
-  apiUrl: 'https://api-absent.breachmarket.xyz'
+  production: false,
+  appName: 'Absent (Local)',
+  apiUrl: 'http://localhost:3000'
 };
