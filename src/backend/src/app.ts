@@ -39,7 +39,7 @@ export const createApp = (): Application => {
     });
   });
 
-  app.use('/api/health', healthRouter);
+  app.use('/health', healthRouter);
 
   app.use((req, res) => {
     res.status(404).json({
