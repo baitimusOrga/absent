@@ -1,0 +1,50 @@
+name: Build & Push To Registry
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  COMPOSE_FILE: "docker-compose.prod.yml"
+  REGISTRY_URL: "192.168.1.7:5000"
+  REGISTRY_USERNAME: "admin"
+  REGISTRY_PASSWORD: "CyMa2005!" # Hardcoded as requested
+
+jobs:
+  build-and-push:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Generate Dynamic Configuration
+        run: |
+          # 1. Get the repo name
+          RAW_NAME="${{ github.event.repository.name }}"
+          
+          # 2. Convert to lowercase (fixes 'invalid tag' error)
+          LOWERCASE_NAME=$(echo "$RAW_NAME" | tr '[:upper:]' '[:lower:]')
+          
+          # 3. Save to .env for Docker Compose to read
+          echo "APP_NAME=$LOWERCASE_NAME" > .env
+          echo "REGISTRY_URL=${{ env.REGISTRY_URL }}" >> .env
+          
+          echo "✅ Configured for project: $LOWERCASE_NAME"
+
+      - name: Log In To Registry
+        run: |
+          echo "🔐 Authenticating against ${{ env.REGISTRY_URL }}"
+          echo "${{ env.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY_URL }} -u "${{ env.REGISTRY_USERNAME }}" --password-stdin
+
+      - name: Build Images
+        run: |
+          echo "🏗️ Building services..."
+          # Compose will now use the lowercase APP_NAME from .env
+          docker compose -f ${{ env.COMPOSE_FILE }} build
+
+      - name: Push to Registry
+        run: |
+          echo "⬆️ Uploading images..."
+          docker compose -f ${{ env.COMPOSE_FILE }} push

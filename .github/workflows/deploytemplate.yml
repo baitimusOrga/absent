@@ -1,0 +1,84 @@
+name: Deploy to LXC
+
+on:
+  workflow_dispatch:
+
+env:
+  # =======================================================
+  # 🛠️ CONFIGURATION
+  # =======================================================
+  # The Target IP (Your "runner lxc" / application server)
+  APP_HOST: "192.168.1.54"
+  APP_USER: "root"
+  
+  # Path to the SSH key ON THE BUILD SERVER (runner)
+  SSH_KEY_PATH: "/home/ghrunner/.ssh/id_rsa"
+  
+  COMPOSE_FILE: "docker-compose.prod.yml"
+  REGISTRY_URL: "192.168.1.7:5000"
+  REGISTRY_USERNAME: "admin"
+  REGISTRY_PASSWORD: "CyMa2005!" # Hardcoded as requested
+  # =======================================================
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      
+      # We convert the repo name to lowercase so 'docker compose pull' looks for the right image
+      - name: Generate Dynamic Configuration
+        run: |
+          RAW_NAME="${{ github.event.repository.name }}"
+          LOWERCASE_NAME=$(echo "$RAW_NAME" | tr '[:upper:]' '[:lower:]')
+          
+          # Create .env for the REMOTE machine
+          echo "APP_NAME=$LOWERCASE_NAME" > .env
+          echo "REGISTRY_URL=${{ env.REGISTRY_URL }}" >> .env
+          
+          # Define the dynamic deployment folder path
+          echo "DEPLOY_DIR=/root/deployments/$LOWERCASE_NAME" >> $GITHUB_ENV
+          
+          echo "✅ Configured deployment for: $LOWERCASE_NAME"
+
+      # 2. PREPARE REMOTE DIRECTORY
+      - name: Create Remote Directory
+        run: |
+          echo "📂 Ensuring folder exists on ${{ env.APP_HOST }}..."
+          ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ env.APP_USER }}@${{ env.APP_HOST }} "mkdir -p ${{ env.DEPLOY_DIR }}"
+
+      # 3. TRANSFER FILES
+      - name: Transfer Configuration
+        run: |
+          echo "📄 Copying docker-compose and .env..."
+          # This sends the generated .env (with lowercase name) to the target
+          scp -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ env.COMPOSE_FILE }} .env ${{ env.APP_USER }}@${{ env.APP_HOST }}:${{ env.DEPLOY_DIR }}/
+
+      # 4. SSH & PULL & RESTART
+      - name: Remote Restart
+        run: |
+          echo "🚀 Connecting to remote server ${{ env.APP_HOST }}..."
+          ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ env.APP_USER }}@${{ env.APP_HOST }} <<'EOF'
+            
+            # Go to the specific project folder
+            cd ${{ env.DEPLOY_DIR }}
+            
+            # Authenticate to allow pulling
+            echo "🔐 Logging in to ${{ env.REGISTRY_URL }}"
+            echo "${{ env.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY_URL }} -u "${{ env.REGISTRY_USERNAME }}" --password-stdin
+
+            # Pull the image (Docker Compose reads APP_NAME from the .env we transferred)
+            echo "⬇️ Pulling latest image..."
+            docker compose -f ${{ env.COMPOSE_FILE }} pull
+            
+            # Restart the app
+            echo "🔄 Restarting container..."
+            # -d is CRITICAL here to let the workflow finish while the app keeps running
+            docker compose -f ${{ env.COMPOSE_FILE }} up -d --remove-orphans
+            
+            # Clean up old images
+            docker image prune -f
+          EOF
