@@ -2,6 +2,10 @@ name: Deploy to LXC
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Build & Push To Registry"]
+    types:
+      - completed
 
 env:
   # =======================================================
@@ -22,10 +26,20 @@ env:
 
 jobs:
   deploy:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
     
     steps:
+      - name: Checkout Code (workflow_run)
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+          fetch-depth: 0
+
       - name: Checkout Code
+        if: ${{ github.event_name != 'workflow_run' }}
         uses: actions/checkout@v3
 
       
