@@ -42,7 +42,7 @@ jobs:
         run: |
           echo "🏗️ Building services..."
           # Compose will now use the lowercase APP_NAME from .env
-          docker compose -f ${{ env.COMPOSE_FILE }} build
+          docker compose -f ${{ env.COMPOSE_FILE }} build --no-cache
 
       - name: Push to Registry
         run: |
