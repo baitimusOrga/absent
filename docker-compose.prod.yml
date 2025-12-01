@@ -1,0 +1,15 @@
+
+
+services:
+  web:
+    # 1. Target your local registry
+    image: ${REGISTRY_URL}/${APP_NAME}:latest
+    
+    # 2. Build the Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+      
+    # 3. Expose the port
+    ports:
+      - "8080:80"
