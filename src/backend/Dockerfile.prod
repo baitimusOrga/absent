@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:20-alpine AS deps
+FROM node:20-alpine AS base
 WORKDIR /app
-ENV NODE_ENV=production
+
+FROM base AS deps
 COPY package*.json ./
 RUN npm ci
 
