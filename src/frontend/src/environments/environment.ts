@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   appName: 'Absent',
-  apiUrl: '/api'
+  apiUrl: 'https://api.absent.breachmarket.xyz'
 };
