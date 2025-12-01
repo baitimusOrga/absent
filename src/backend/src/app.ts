@@ -11,13 +11,24 @@ export const createApp = (): Application => {
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
 
-  const allowedOrigins = process.env.CORS_ORIGIN?.split(',').map((item) => item.trim()).filter(Boolean);
-  app.use(
-    cors({
-      origin: allowedOrigins && allowedOrigins.length > 0 ? allowedOrigins : undefined,
-      credentials: true,
-    })
-  );
+  const isProduction = process.env.NODE_ENV === 'production';
+  const configuredOrigins = process.env.CORS_ORIGIN?.split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const productionOrigins = configuredOrigins && configuredOrigins.length > 0
+    ? configuredOrigins
+    : ['https://absent.breachmarket.xyz'];
+
+  if (isProduction) {
+    app.use(
+      cors({
+        origin: productionOrigins,
+        credentials: true,
+      })
+    );
+  } else {
+    app.use(cors());
+  }
   app.use(express.json());
 
   app.get('/', (_req, res) => {
