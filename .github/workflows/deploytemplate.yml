@@ -8,7 +8,7 @@ env:
   # 🛠️ CONFIGURATION
   # =======================================================
   # The Target IP (Your "runner lxc" / application server)
-  APP_HOST: "192.168.1.54"
+  APP_HOST: "192.168.1.55"
   APP_USER: "root"
   
   # Path to the SSH key ON THE BUILD SERVER (runner)
