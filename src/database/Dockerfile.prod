@@ -1,0 +1,9 @@
+FROM mongo:7.0
+
+ENV MONGO_INITDB_ROOT_USERNAME=absent \
+    MONGO_INITDB_ROOT_PASSWORD=absent \
+    MONGO_INITDB_DATABASE=absent
+
+EXPOSE 27017
+
+CMD ["mongod", "--bind_ip_all", "--wiredTigerCacheSizeGB", "1"]
