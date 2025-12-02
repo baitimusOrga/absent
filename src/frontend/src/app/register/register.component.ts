@@ -42,8 +42,8 @@ export class RegisterComponent {
         return;
       }
 
-      // Redirect to home after successful registration
-      this.router.navigate(['/']);
+      // Redirect to dashboard after successful registration
+      this.router.navigate(['/dashboard']);
     } catch (err) {
       this.error = 'An unexpected error occurred';
       console.error(err);
