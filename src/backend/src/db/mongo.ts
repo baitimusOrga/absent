@@ -26,6 +26,14 @@ export const getDatabase = (): Db => {
   return database;
 };
 
+export const getMongoClient = (): MongoClient => {
+  if (!client) {
+    throw new Error('MongoDB client has not been initialized. Did you forget to call connectToDatabase()?');
+  }
+
+  return client;
+};
+
 export const disconnectFromDatabase = async () => {
   if (!client) {
     return;

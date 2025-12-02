@@ -2,6 +2,8 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import { healthRouter } from './routes/health';
 import type { AppConfig } from './config';
+import { auth } from './auth';
+import { toNodeHandler } from 'better-auth/node';
 
 /**
  * Builds and configures the Express application instance.
@@ -32,6 +34,8 @@ export const createApp = (config: AppConfig): Application => {
       timestamp: new Date().toISOString(),
     });
   });
+
+  app.all('/api/auth/{*catchAll}', toNodeHandler(auth));
 
   app.use('/', healthRouter);
 
