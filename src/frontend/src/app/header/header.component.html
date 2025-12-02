@@ -1,9 +1,21 @@
-<header class="masthead">
+<header class="masthead" [class.menu-open]="menuOpen">
 	<div class="inner">
-		<a class="brand" routerLink="/">Absent</a>
-		<nav class="actions">
-			
-			<a class="login" routerLink="/login">Log in</a>
-		</nav>
+		<a class="brand" routerLink="/" (click)="closeMenu()">
+			<span class="logo-dot"></span>
+			<span class="wordmark">Absent</span>
+		</a>
+		<div class="nav-cluster" [class.open]="menuOpen">
+			<nav class="nav">
+				<a routerLink="/" fragment="flow" (click)="closeMenu()">How it works</a>
+			</nav>
+			<div class="actions">
+				<a class="primary" routerLink="/login" (click)="closeMenu()">Log in</a>
+			</div>
+		</div>
+		<button class="mobile-toggle" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen" aria-label="Toggle navigation">
+			<span class="bar top"></span>
+			<span class="bar middle"></span>
+			<span class="bar bottom"></span>
+		</button>
 	</div>
 </header>
