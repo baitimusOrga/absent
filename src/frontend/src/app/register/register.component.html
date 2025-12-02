@@ -1,0 +1,29 @@
+<section class="auth-screen">
+	<div class="aurora"></div>
+	<div class="grain"></div>
+	<div class="auth-card">
+		<span class="badge">Join the beta</span>
+		<h1>Register</h1>
+		<form class="auth-form" novalidate>
+			<label class="field">
+				<span>Username</span>
+				<input type="text" name="username" placeholder="absent-fan" autocomplete="username" required>
+			</label>
+			<label class="field">
+				<span>Email</span>
+				<input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+			</label>
+			<label class="field">
+				<span>Password</span>
+				<input type="password" name="password" placeholder="Create a strong password" autocomplete="new-password" required>
+			</label>
+			<div class="consent">
+				<input id="consent" type="checkbox" name="consent" required>
+				<label for="consent">I agree to the data policy and terms of use.</label>
+			</div>
+			<button class="primary" type="button">Create account</button>
+		</form>
+		<p class="switch">Already with us? <a routerLink="/login">Log in instead</a>.</p>
+			<p class="support">Need a hand? <a href="mailto:hello@absent.fun">hello@absent.fun</a></p>
+	</div>
+</section>

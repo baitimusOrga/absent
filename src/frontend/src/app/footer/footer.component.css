@@ -1,0 +1,43 @@
+:host {
+	display: block;
+}
+
+.footer {
+	border-top: 1px solid rgba(30, 41, 59, 0.6);
+	background: rgba(15, 23, 42, 0.95);
+	padding: 2.5rem 0;
+}
+
+.footer-inner {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 0 1.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	color: rgba(148, 163, 184, 0.8);
+	font-size: 0.75rem;
+}
+
+.footer-inner a {
+	align-self: flex-start;
+	color: rgb(94, 234, 212);
+	text-decoration: none;
+	text-transform: uppercase;
+	letter-spacing: 0.18em;
+	font-weight: 600;
+	font-size: 0.7rem;
+	transition: color 160ms ease;
+}
+
+.footer-inner a:hover {
+	color: rgb(16, 185, 129);
+}
+
+@media (min-width: 640px) {
+	.footer-inner {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+}

@@ -2,10 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
 :root {
 	color-scheme: light;
 }
 
+html {
+	scrollbar-width: none;
+}
+
 body {
 	@apply m-0 min-h-screen bg-slate-950 text-slate-100 antialiased;
+	overflow-x: hidden;
+	-ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar {
+	display: none;
 }
