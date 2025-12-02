@@ -1,30 +1,34 @@
-import packageJson from '../package.json';
-
-const DEFAULT_PORT = 3000;
-const DEFAULT_HOST = '0.0.0.0';
-const DEFAULT_PRODUCTION_ORIGINS = ['https://absent.breachmarket.xyz'];
-
-export const DEFAULT_MONGO_URI = 'mongodb://absent:absent@mongo:27017/absent?authSource=admin';
-export const DEFAULT_MONGO_DB_NAME = 'absent';
-
-const parseNumber = (value: string | undefined, fallback: number): number => {
-  if (!value) {
-    return fallback;
+const parseNumber = (value: string, key: string): number => {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Environment variable ${key} must be a number. Received "${value}".`);
   }
 
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) ? parsed : fallback;
+  return parsed;
 };
 
-const parseCsv = (value: string | undefined): string[] => {
-  if (!value) {
-    return [];
+const parseCsv = (value: string | undefined): string[] =>
+  value
+    ?.split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0) ?? [];
+
+const parseBoolean = (value: string, key: string): boolean => {
+  const normalized = value.trim().toLowerCase();
+  if (normalized !== 'true' && normalized !== 'false') {
+    throw new Error(`Environment variable ${key} must be either "true" or "false". Received "${value}".`);
   }
 
-  return value
-    .split(',')
-    .map((item) => item.trim())
-    .filter((item) => item.length > 0);
+  return normalized === 'true';
+};
+
+const requireEnv = (key: string): string => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable ${key}.`);
+  }
+
+  return value;
 };
 
 export interface RuntimeMetadata {
@@ -52,29 +56,29 @@ export interface AppConfig {
 }
 
 export const loadAppConfig = (): AppConfig => {
-  const nodeEnv = process.env.NODE_ENV ?? 'development';
-  const metadata: RuntimeMetadata = {
-    name: process.env.APP_NAME ?? packageJson.name,
-    version: process.env.APP_VERSION ?? packageJson.version,
-  };
+  const nodeEnv = requireEnv('NODE_ENV');
+  const corsEnabled = parseBoolean(requireEnv('CORS_ENABLED'), 'CORS_ENABLED');
+  const allowList = parseCsv(process.env.CORS_ORIGIN);
 
-  const configuredOrigins = parseCsv(process.env.CORS_ORIGIN);
-  const allowList = nodeEnv === 'production'
-    ? (configuredOrigins.length > 0 ? configuredOrigins : DEFAULT_PRODUCTION_ORIGINS)
-    : [];
+  if (corsEnabled && allowList.length === 0) {
+    throw new Error('CORS_ORIGIN must contain at least one entry when CORS_ENABLED is true.');
+  }
 
   return {
     nodeEnv,
-    host: process.env.HOST ?? DEFAULT_HOST,
-    port: parseNumber(process.env.PORT, DEFAULT_PORT),
+    host: requireEnv('HOST'),
+    port: parseNumber(requireEnv('PORT'), 'PORT'),
     cors: {
-      enabled: nodeEnv === 'production',
+      enabled: corsEnabled,
       allowList,
     },
-    metadata,
+    metadata: {
+      name: requireEnv('APP_NAME'),
+      version: requireEnv('APP_VERSION'),
+    },
     database: {
-      uri: process.env.MONGO_URI ?? DEFAULT_MONGO_URI,
-      dbName: process.env.MONGO_DB ?? DEFAULT_MONGO_DB_NAME,
+      uri: requireEnv('MONGO_URI'),
+      dbName: requireEnv('MONGO_DB'),
     },
   };
 };

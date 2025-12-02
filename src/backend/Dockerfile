@@ -8,6 +8,7 @@ RUN npm install
 
 COPY tsconfig.json ./
 COPY src ./src
+COPY .env.development .env
 
 EXPOSE 3000
 
