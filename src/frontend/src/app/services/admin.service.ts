@@ -15,6 +15,11 @@ export interface AdminUser {
   image?: string;
   sessions?: UserSession[];
   accounts?: UserAccount[];
+  schulnetzCalendarUrl?: string;
+  school?: string;
+  berufsbildner?: string;
+  berufsbildnerEmail?: string;
+  berufsbildnerPhoneNumber?: string;
 }
 
 export interface UserSession {

@@ -9,6 +9,11 @@ export interface User {
   name: string;
   role?: string;
   emailVerified?: boolean;
+  schulnetzCalendarUrl?: string;
+  school?: string;
+  berufsbildner?: string;
+  berufsbildnerEmail?: string;
+  berufsbildnerPhoneNumber?: string;
 }
 
 @Injectable({
