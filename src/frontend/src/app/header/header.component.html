@@ -8,6 +8,7 @@
 			<nav class="nav">
 				<a routerLink="/" fragment="flow" (click)="closeMenu()">How it works</a>
 				<a *ngIf="isLoggedIn" routerLink="/dashboard" (click)="closeMenu()">Dashboard</a>
+				<a *ngIf="isAdmin" routerLink="/admin" (click)="closeMenu()">Admin</a>
 			</nav>
 			<div class="actions">
 				<a *ngIf="!isLoggedIn" class="primary" routerLink="/login" (click)="closeMenu()">Log in</a>
