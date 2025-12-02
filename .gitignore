@@ -7,7 +7,7 @@ coverage/
 .tmp/
 
 # Environment files
-.env
+
 .env.*
 !.env.development
 !/src/backend/.env.development
