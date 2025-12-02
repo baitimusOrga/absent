@@ -1,75 +1,243 @@
-<div class="container">
-  <h1>User Management</h1>
+<div class="admin-container">
+  <h1>User Management Dashboard</h1>
 
   @if (error) {
     <div class="error">{{ error }}</div>
   }
 
+  <!-- Statistics Section -->
+  @if (statistics) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ statistics.totalUsers }}</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ statistics.activeUsers }}</div>
+        <div class="stat-label">Active Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ statistics.bannedUsers }}</div>
+        <div class="stat-label">Banned Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ statistics.unverifiedUsers }}</div>
+        <div class="stat-label">Unverified</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ statistics.usersToday }}</div>
+        <div class="stat-label">Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ statistics.usersThisWeek }}</div>
+        <div class="stat-label">This Week</div>
+      </div>
+    </div>
+  }
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <button (click)="openModal('create')">Create User</button>
+      <button (click)="exportCSV()">Export CSV</button>
+      <button (click)="exportJSON()">Export JSON</button>
+      
+      @if (selectedCount > 0) {
+        <span class="selected-count">{{ selectedCount }} selected</span>
+        <button (click)="openModal('bulkRole')">Bulk Role</button>
+        <button (click)="openModal('bulkBan')">Bulk Ban</button>
+        <button (click)="bulkUnban()">Bulk Unban</button>
+        <button (click)="bulkDelete()" class="danger">Bulk Delete</button>
+        <button (click)="clearSelection()">Clear</button>
+      }
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <input 
+      type="text" 
+      [(ngModel)]="searchTerm" 
+      (ngModelChange)="onSearchChange()"
+      placeholder="Search by email or name..."
+      class="search-input"
+    />
+    
+    <select [(ngModel)]="filterRole" (ngModelChange)="onFilterChange()">
+      <option value="">All Roles</option>
+      <option value="user">User</option>
+      <option value="moderator">Moderator</option>
+      <option value="admin">Admin</option>
+    </select>
+    
+    <select [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="banned">Banned</option>
+      <option value="verified">Verified</option>
+      <option value="unverified">Unverified</option>
+    </select>
+    
+    <span class="filter-result">Showing {{ displayedUsers.length }} of {{ filteredUsers.length }} users</span>
+  </div>
+
   @if (loading) {
     <p>Loading...</p>
   } @else {
-    <table>
-      <thead>
-        <tr>
-          <th>Email</th>
-          <th>Name</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (user of users; track user.id) {
+    <!-- Users Table -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
           <tr>
-            <td>{{ user.email }}</td>
-            <td>{{ user.name || '-' }}</td>
-            <td>{{ user.role || 'user' }}</td>
-            <td>
-              @if (user.banned) {
-                <span class="badge banned">Banned</span>
-              } @else if (user.emailVerified) {
-                <span class="badge active">Active</span>
-              } @else {
-                <span class="badge unverified">Unverified</span>
+            <th>
+              <input 
+                type="checkbox" 
+                [checked]="selectAll" 
+                (change)="toggleSelectAll()"
+              />
+            </th>
+            <th (click)="sortBy('email')" class="sortable">
+              Email
+              @if (sortColumn === 'email') {
+                <span class="sort-icon">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
               }
-            </td>
-            <td>
-              <button (click)="openModal('role', user)">Role</button>
-              @if (user.banned) {
-                <button (click)="unbanUser(user.id)">Unban</button>
-              } @else {
-                <button (click)="openModal('ban', user)">Ban</button>
+            </th>
+            <th (click)="sortBy('name')" class="sortable">
+              Name
+              @if (sortColumn === 'name') {
+                <span class="sort-icon">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
               }
-              <button (click)="deleteUser(user.id)" class="danger">Delete</button>
-            </td>
+            </th>
+            <th (click)="sortBy('role')" class="sortable">
+              Role
+              @if (sortColumn === 'role') {
+                <span class="sort-icon">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </th>
+            <th (click)="sortBy('emailVerified')" class="sortable">
+              Status
+              @if (sortColumn === 'emailVerified') {
+                <span class="sort-icon">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </th>
+            <th (click)="sortBy('createdAt')" class="sortable">
+              Created
+              @if (sortColumn === 'createdAt') {
+                <span class="sort-icon">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </th>
+            <th>Actions</th>
           </tr>
+        </thead>
+        <tbody>
+          @for (user of displayedUsers; track user.id) {
+            <tr [class.selected]="isUserSelected(user.id)">
+              <td>
+                <input 
+                  type="checkbox" 
+                  [checked]="isUserSelected(user.id)"
+                  (change)="toggleUserSelection(user.id)"
+                />
+              </td>
+              <td>
+                <a href="javascript:void(0)" (click)="openModal('details', user)" class="user-link">
+                  {{ user.email }}
+                </a>
+              </td>
+              <td>{{ user.name || '-' }}</td>
+              <td>
+                <span class="role-badge" [class]="'role-' + (user.role || 'user')">
+                  {{ user.role || 'user' }}
+                </span>
+              </td>
+              <td>
+                @if (user.banned) {
+                  <span class="badge banned">Banned</span>
+                } @else if (user.emailVerified) {
+                  <span class="badge active">Active</span>
+                } @else {
+                  <span class="badge unverified">Unverified</span>
+                }
+              </td>
+              <td>{{ user.createdAt | date:'short' }}</td>
+              <td class="actions">
+                <button (click)="openModal('role', user)" class="btn-small">Role</button>
+                @if (user.banned) {
+                  <button (click)="unbanUser(user.id)" class="btn-small">Unban</button>
+                } @else {
+                  <button (click)="openModal('ban', user)" class="btn-small">Ban</button>
+                }
+                <button (click)="deleteUser(user.id)" class="btn-small danger">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <div class="pagination-info">
+        <label>
+          Show
+          <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+            @for (size of pageSizes; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+          per page
+        </label>
+      </div>
+      
+      <div class="pagination-controls">
+        <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+        
+        @for (page of pageNumbers; track page) {
+          <button 
+            (click)="goToPage(page)" 
+            [class.active]="currentPage === page"
+          >
+            {{ page }}
+          </button>
         }
-      </tbody>
-    </table>
+        
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+      </div>
+      
+      <div class="pagination-summary">
+        Page {{ currentPage }} of {{ totalPages }}
+      </div>
+    </div>
   }
 </div>
 
-@if (showModal && selectedUser) {
+<!-- Modals -->
+@if (showModal && modalType) {
   <div class="modal-overlay" (click)="closeModal()">
     <div class="modal" (click)="$event.stopPropagation()">
-      @if (modalType === 'ban') {
+      
+      <!-- Ban User Modal -->
+      @if (modalType === 'ban' && selectedUser) {
         <h2>Ban User</h2>
-        <p>{{ selectedUser.email }}</p>
+        <p class="modal-user">{{ selectedUser.email }}</p>
         <label>
-          Reason
-          <input type="text" [(ngModel)]="banReason" placeholder="Optional">
+          Reason (optional)
+          <input type="text" [(ngModel)]="banReason" placeholder="Spam, abuse, etc.">
         </label>
         <label>
-          Days
+          Duration (days)
           <input type="number" [(ngModel)]="banDays" min="1">
         </label>
         <div class="modal-actions">
-          <button (click)="banUser()" class="danger">Ban</button>
+          <button (click)="banUser()" class="danger">Ban User</button>
           <button (click)="closeModal()">Cancel</button>
         </div>
-      } @else if (modalType === 'role') {
+      }
+
+      <!-- Change Role Modal -->
+      @if (modalType === 'role' && selectedUser) {
         <h2>Change Role</h2>
-        <p>{{ selectedUser.email }}</p>
+        <p class="modal-user">{{ selectedUser.email }}</p>
         <label>
           Role
           <select [(ngModel)]="newRole">
@@ -83,6 +251,147 @@
           <button (click)="closeModal()">Cancel</button>
         </div>
       }
+
+      <!-- Create User Modal -->
+      @if (modalType === 'create') {
+        <h2>Create New User</h2>
+        <label>
+          Email
+          <input type="email" [(ngModel)]="newUserEmail" placeholder="user@example.com" required>
+        </label>
+        <label>
+          Name
+          <input type="text" [(ngModel)]="newUserName" placeholder="Full name" required>
+        </label>
+        <label>
+          Password
+          <input type="password" [(ngModel)]="newUserPassword" placeholder="Min 8 characters" required>
+        </label>
+        <label>
+          Role
+          <select [(ngModel)]="newUserRole">
+            <option value="user">User</option>
+            <option value="moderator">Moderator</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <div class="modal-actions">
+          <button (click)="createUser()">Create User</button>
+          <button (click)="closeModal()">Cancel</button>
+        </div>
+      }
+
+      <!-- Bulk Ban Modal -->
+      @if (modalType === 'bulkBan') {
+        <h2>Ban Selected Users</h2>
+        <p>You are about to ban {{ selectedCount }} users</p>
+        <label>
+          Reason (optional)
+          <input type="text" [(ngModel)]="bulkBanReason" placeholder="Spam, abuse, etc.">
+        </label>
+        <label>
+          Duration (days)
+          <input type="number" [(ngModel)]="bulkBanDays" min="1">
+        </label>
+        <div class="modal-actions">
+          <button (click)="bulkBan()" class="danger">Ban Users</button>
+          <button (click)="closeModal()">Cancel</button>
+        </div>
+      }
+
+      <!-- Bulk Role Modal -->
+      @if (modalType === 'bulkRole') {
+        <h2>Change Role for Selected Users</h2>
+        <p>You are about to change the role for {{ selectedCount }} users</p>
+        <label>
+          New Role
+          <select [(ngModel)]="bulkRole">
+            <option value="user">User</option>
+            <option value="moderator">Moderator</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <div class="modal-actions">
+          <button (click)="bulkChangeRole()">Change Role</button>
+          <button (click)="closeModal()">Cancel</button>
+        </div>
+      }
+
+      <!-- User Details Modal -->
+      @if (modalType === 'details' && selectedUser) {
+        <h2>User Details</h2>
+        <div class="user-details">
+          <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span>{{ selectedUser.email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Name:</span>
+            <span>{{ selectedUser.name || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role:</span>
+            <span class="role-badge" [class]="'role-' + (selectedUser.role || 'user')">
+              {{ selectedUser.role || 'user' }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Email Verified:</span>
+            <span>{{ selectedUser.emailVerified ? 'Yes' : 'No' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            @if (selectedUser.banned) {
+              <span class="badge banned">Banned</span>
+            } @else {
+              <span class="badge active">Active</span>
+            }
+          </div>
+          @if (selectedUser.banned && selectedUser.banReason) {
+            <div class="detail-row">
+              <span class="detail-label">Ban Reason:</span>
+              <span>{{ selectedUser.banReason }}</span>
+            </div>
+          }
+          <div class="detail-row">
+            <span class="detail-label">Created:</span>
+            <span>{{ selectedUser.createdAt | date:'medium' }}</span>
+          </div>
+          @if (selectedUser.updatedAt) {
+            <div class="detail-row">
+              <span class="detail-label">Updated:</span>
+              <span>{{ selectedUser.updatedAt | date:'medium' }}</span>
+            </div>
+          }
+          
+          <h3>Active Sessions</h3>
+          @if (userSessions.length > 0) {
+            <div class="sessions-list">
+              @for (session of userSessions; track session.id) {
+                <div class="session-item">
+                  <div class="session-info">
+                    @if (session.ipAddress) {
+                      <div><strong>IP:</strong> {{ session.ipAddress }}</div>
+                    }
+                    @if (session.userAgent) {
+                      <div><strong>Device:</strong> {{ session.userAgent }}</div>
+                    }
+                    <div><strong>Expires:</strong> {{ session.expiresAt | date:'short' }}</div>
+                  </div>
+                  <button (click)="revokeSession(session.id)" class="btn-small danger">Revoke</button>
+                </div>
+              }
+              <button (click)="revokeAllSessions(selectedUser.id)" class="danger">Revoke All Sessions</button>
+            </div>
+          } @else {
+            <p>No active sessions</p>
+          }
+        </div>
+        <div class="modal-actions">
+          <button (click)="closeModal()">Close</button>
+        </div>
+      }
+      
     </div>
   </div>
 }
