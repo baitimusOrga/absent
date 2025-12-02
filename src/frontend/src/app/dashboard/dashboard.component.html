@@ -14,6 +14,108 @@
       </div>
     </div>
 
+    <div class="card profile-card">
+      <div class="card-header">
+        <h2>Professional Information</h2>
+        <button *ngIf="!isEditing" class="edit-btn" (click)="startEditing()">Edit</button>
+      </div>
+
+      <div *ngIf="!isEditing" class="profile-info">
+        <div class="info-row">
+          <strong>School:</strong>
+          <span>{{ user?.school || 'Not set' }}</span>
+        </div>
+        <div class="info-row">
+          <strong>Schulnetz Calendar URL:</strong>
+          <span>{{ user?.schulnetzCalendarUrl || 'Not set' }}</span>
+        </div>
+        <div class="info-row">
+          <strong>Berufsbildner:</strong>
+          <span>{{ user?.berufsbildner || 'Not set' }}</span>
+        </div>
+        <div class="info-row">
+          <strong>Berufsbildner Email:</strong>
+          <span>{{ user?.berufsbildnerEmail || 'Not set' }}</span>
+        </div>
+        <div class="info-row">
+          <strong>Berufsbildner Phone:</strong>
+          <span>{{ user?.berufsbildnerPhoneNumber || 'Not set' }}</span>
+        </div>
+      </div>
+
+      <form *ngIf="isEditing" class="edit-form" (ngSubmit)="saveProfile()">
+        <div class="form-group">
+          <label for="school">School</label>
+          <select id="school" [(ngModel)]="editForm.school" name="school" class="form-control">
+            <option value="">Select a school</option>
+            <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="calendarUrl">Schulnetz Calendar URL</label>
+          <input 
+            type="url" 
+            id="calendarUrl" 
+            [(ngModel)]="editForm.schulnetzCalendarUrl" 
+            name="schulnetzCalendarUrl"
+            class="form-control"
+            placeholder="https://..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="berufsbildner">Berufsbildner Name</label>
+          <input 
+            type="text" 
+            id="berufsbildner" 
+            [(ngModel)]="editForm.berufsbildner" 
+            name="berufsbildner"
+            class="form-control"
+            placeholder="Full name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="berufsbildnerEmail">Berufsbildner Email</label>
+          <input 
+            type="email" 
+            id="berufsbildnerEmail" 
+            [(ngModel)]="editForm.berufsbildnerEmail" 
+            name="berufsbildnerEmail"
+            class="form-control"
+            placeholder="email@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="berufsbildnerPhone">Berufsbildner Phone Number</label>
+          <input 
+            type="tel" 
+            id="berufsbildnerPhone" 
+            [(ngModel)]="editForm.berufsbildnerPhoneNumber" 
+            name="berufsbildnerPhoneNumber"
+            class="form-control"
+            placeholder="+41..."
+          />
+        </div>
+
+        <div *ngIf="saveMessage" class="save-message" [class.success]="saveMessage.includes('success')">
+          {{ saveMessage }}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="save-btn" [disabled]="isSaving" [class.saving]="isSaving">
+            <span *ngIf="!isSaving">Save</span>
+            <span *ngIf="isSaving">Saving...</span>
+          </button>
+          <button type="button" class="cancel-btn" (click)="cancelEditing()" [disabled]="isSaving">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
     <div class="card">
       <h2>Quick Actions</h2>
       <p>This is your protected dashboard. You can only see this when logged in.</p>
