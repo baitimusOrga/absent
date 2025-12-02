@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { authClient } from './auth-client';
+import { getAuthClient, initAuthClient } from './auth-client';
+import { FRONTEND_CONFIG } from '../config/frontend-config';
 
 export interface User {
   id: string;
@@ -14,14 +15,17 @@ export interface User {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
+  private authClient;
 
   constructor() {
+    const config = inject(FRONTEND_CONFIG);
+    this.authClient = initAuthClient(config.apiUrl);
     this.checkSession();
   }
 
   async checkSession(): Promise<void> {
     try {
-      const session = await authClient.getSession();
+      const session = await this.authClient.getSession();
       if (session?.data?.user) {
         this.currentUserSubject.next(session.data.user as User);
       } else {
@@ -35,7 +39,7 @@ export class AuthService {
 
   async isAuthenticated(): Promise<boolean> {
     try {
-      const session = await authClient.getSession();
+      const session = await this.authClient.getSession();
       const isAuth = !!session?.data?.user;
       if (isAuth && !this.currentUserSubject.value && session.data) {
         this.currentUserSubject.next(session.data.user as User);
@@ -49,7 +53,7 @@ export class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await authClient.signOut();
+      await this.authClient.signOut();
       this.currentUserSubject.next(null);
     } catch (error) {
       console.error('Error during logout:', error);
@@ -59,5 +63,9 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
+  }
+
+  getClient() {
+    return this.authClient;
   }
 }
