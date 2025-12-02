@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "prestart": "node ./scripts/write-config.mjs",
     "start": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --port 4200 --poll 2000",
+    "prebuild": "node ./scripts/write-config.mjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -36,6 +38,7 @@
     "@angular/build": "^21.0.1",
     "@angular/cli": "^21.0.1",
     "@angular/compiler-cli": "^21.0.0",
+    "dotenv": "^17.2.3",
     "autoprefixer": "^10.4.20",
     "jsdom": "^27.1.0",
     "postcss": "^8.4.49",
