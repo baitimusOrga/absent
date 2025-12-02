@@ -1,7 +1,87 @@
-<main class="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-	<a
-		routerLink="/health"
-		class="rounded-full border border-emerald-400 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-300 transition hover:bg-emerald-400/10">
-		View Health Status
-	</a>
+<main class="landing relative overflow-hidden text-slate-50">
+	<div class="gradient"></div>
+	<div class="grain"></div>
+	<div class="container">
+		<header class="hero" id="top">
+			<span class="badge">Built by students who hate paperwork</span>
+			<h1 class="hero-title">
+				Absences sorted before your teacher asks.
+			</h1>
+			<p class="hero-copy">
+				Drop your Schulnetz calendar URL, confirm the classes you will miss, and Absent drafts the official form automatically. No spreadsheets, no guessing, just a ready-to-share PDF in under a minute.
+			</p>
+			<ul class="value-points">
+				<li>Guided three-step flow anyone can follow.</li>
+				<li>Smart defaults remember your details for the next request.</li>
+				<li>Clean exports that keep teachers and admins in the loop.</li>
+			</ul>
+			<div class="cta-group">
+				<a routerLink="/health" class="cta-btn">
+					See what we are building
+				</a>
+				<a href="mailto:hello@absent.fun" class="secondary-btn">
+					Join the beta waitlist
+				</a>
+			</div>
+		</header>
+		<section class="steps" id="flow">
+			<h2 class="section-title">From calendar link to signed form in 60 seconds</h2>
+			<div class="step-list">
+				<article class="step-item">
+					<span class="step-index">1</span>
+					<h3>Paste your Schulnetz URL</h3>
+					<p>We fetch upcoming lessons and spot future absences instantly.</p>
+				</article>
+				<article class="step-item">
+					<span class="step-index">2</span>
+					<h3>Toggle the lessons you will miss</h3>
+					<p>Absent remembers your guardians, classes, and reasons so updates take seconds.</p>
+				</article>
+				<article class="step-item">
+					<span class="step-index">3</span>
+					<h3>Download & share</h3>
+					<p>Export a polished PDF or send a direct link to teachers and keep the history forever.</p>
+				</article>
+			</div>
+		</section>
+		<section class="retention" id="retention">
+			<div class="retention-copy">
+				<h2 class="section-title">Stay with the tool that knows you</h2>
+				<p>
+					We built Absent to be the absence sidekick you keep coming back to. A living timeline tracks every submitted form, reminders nudge you before deadlines, and personal notes make sure nothing is forgotten.
+				</p>
+				<ul class="retention-points">
+					<li>Keep a searchable archive of every absence request.</li>
+					<li>Automatic drafts when your calendar shows a conflict again.</li>
+					<li>Share updates with parents or guardians in one click.</li>
+				</ul>
+			</div>
+			<aside class="retention-card">
+				<h3>Why another app?</h3>
+				<p>
+					Because variety matters. Our friends at
+					<a class="link" href="https://absendo.app" rel="noopener" target="_blank">absendo.app</a>
+					already offer a solid solution. Absent is our playful experiment to explore different ideas, smoother onboarding, and retention-focused features.
+				</p>
+				<p>
+					Competition keeps us all sharp, and you benefit from better tools no matter which one you choose.
+				</p>
+			</aside>
+		</section>
+		<section class="disclaimer-card" id="disclaimer">
+			<h3>Friendly heads-up</h3>
+			<p>
+				Absent is a fun side project created by students for students. There is no commercial backing, just curiosity and late-night coding sessions. Expect transparency, rapid iteration, and the occasional rough edge.
+			</p>
+			<p>
+				Want to keep us motivated? Share feedback, report bugs, or simply tell a friend. Let us know what would make you stay.
+			</p>
+		</section>
+	</div>
+	<footer class="footer">
+		<div class="footer-inner">
+			<span>&copy; {{ currentYear }} Absent Labs. Built with curiosity.</span>
+			<a class="link" href="mailto:hello@absent.fun">Contact the crew</a>
+		</div>
+	</footer>
 </main>
