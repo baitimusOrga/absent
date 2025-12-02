@@ -15,45 +15,80 @@ export interface User {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
-  private authClient;
+  private authClient: any;
+  private sessionCheckPromise: Promise<void> | null = null;
+  private isInitialized = false;
 
   constructor() {
-    const config = inject(FRONTEND_CONFIG);
-    this.authClient = initAuthClient(config.apiUrl);
-    this.checkSession();
+    // Delay auth client initialization until it's needed
+  }
+
+  private ensureAuthClient() {
+    if (!this.authClient) {
+      const config = inject(FRONTEND_CONFIG);
+      this.authClient = initAuthClient(config.apiUrl);
+    }
+    return this.authClient;
   }
 
   async checkSession(): Promise<void> {
-    try {
-      const session = await this.authClient.getSession();
-      if (session?.data?.user) {
-        this.currentUserSubject.next(session.data.user as User);
-      } else {
-        this.currentUserSubject.next(null);
-      }
-    } catch (error) {
-      console.error('Error checking session:', error);
-      this.currentUserSubject.next(null);
+    // Return existing promise if already checking
+    if (this.sessionCheckPromise) {
+      return this.sessionCheckPromise;
     }
+
+    // Create new promise for session check with timeout
+    this.sessionCheckPromise = (async () => {
+      try {
+        const client = this.ensureAuthClient();
+        
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session check timeout')), 3000)
+        );
+        
+        const session = await Promise.race([
+          client.getSession(),
+          timeoutPromise
+        ]);
+        
+        if (session?.data?.user) {
+          this.currentUserSubject.next(session.data.user as User);
+        } else {
+          this.currentUserSubject.next(null);
+        }
+        this.isInitialized = true;
+      } catch (error) {
+        console.error('Error checking session:', error);
+        this.currentUserSubject.next(null);
+        this.isInitialized = true;
+      } finally {
+        this.sessionCheckPromise = null;
+      }
+    })();
+
+    return this.sessionCheckPromise;
   }
 
   async isAuthenticated(): Promise<boolean> {
-    try {
-      const session = await this.authClient.getSession();
-      const isAuth = !!session?.data?.user;
-      if (isAuth && !this.currentUserSubject.value && session.data) {
-        this.currentUserSubject.next(session.data.user as User);
-      }
-      return isAuth;
-    } catch (error) {
-      console.error('Error checking authentication:', error);
-      return false;
+    // If not initialized yet, check session first
+    if (!this.isInitialized) {
+      await this.checkSession();
     }
+    
+    // Return cached value
+    return this.currentUserSubject.value !== null;
+  }
+
+  // Check authentication synchronously from cache only
+  isAuthenticatedSync(): boolean {
+    return this.currentUserSubject.value !== null;
   }
 
   async logout(): Promise<void> {
     try {
-      await this.authClient.signOut();
+      const client = this.ensureAuthClient();
+      await client.signOut();
       this.currentUserSubject.next(null);
     } catch (error) {
       console.error('Error during logout:', error);
@@ -66,6 +101,12 @@ export class AuthService {
   }
 
   getClient() {
-    return this.authClient;
+    return this.ensureAuthClient();
+  }
+
+  // Force refresh session from server
+  async refreshSession(): Promise<void> {
+    this.isInitialized = false;
+    await this.checkSession();
   }
 }
