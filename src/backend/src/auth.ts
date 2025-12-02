@@ -14,5 +14,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  },
   trustedOrigins: process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) ?? [],
 });
