@@ -19,10 +19,12 @@ export class HeaderComponent implements OnInit {
   menuOpen = false;
   readonly appName = this.config.appName;
   isLoggedIn = false;
+  isAdmin = false;
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
+      this.isAdmin = user?.role === 'admin';
     });
   }
 
