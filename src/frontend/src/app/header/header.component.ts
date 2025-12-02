@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FRONTEND_CONFIG } from '../config/frontend-config';
 
 @Component({
   selector: 'app-header',
@@ -10,7 +11,9 @@ import { RouterLink } from '@angular/router';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
+  private readonly config = inject(FRONTEND_CONFIG);
   menuOpen = false;
+  readonly appName = this.config.appName;
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;

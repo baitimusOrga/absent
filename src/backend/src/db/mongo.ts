@@ -1,21 +1,11 @@
 import { MongoClient, type Db } from 'mongodb';
-import { DEFAULT_MONGO_DB_NAME, DEFAULT_MONGO_URI, type DatabaseConfig } from '../config';
+import type { DatabaseConfig } from '../config';
 
 let client: MongoClient | null = null;
 let database: Db | null = null;
 
-export interface MongoConnectionOptions {
-  uri?: string;
-  dbName?: string;
-}
-
-const resolveMongoConfig = (options: MongoConnectionOptions): DatabaseConfig => ({
-  uri: options.uri ?? process.env.MONGO_URI ?? DEFAULT_MONGO_URI,
-  dbName: options.dbName ?? process.env.MONGO_DB ?? DEFAULT_MONGO_DB_NAME,
-});
-
-export const connectToDatabase = async (options: MongoConnectionOptions = {}) => {
-  const { uri, dbName } = resolveMongoConfig(options);
+export const connectToDatabase = async (options: DatabaseConfig) => {
+  const { uri, dbName } = options;
 
   if (client) {
     return { client, db: database ?? client.db(dbName) };
