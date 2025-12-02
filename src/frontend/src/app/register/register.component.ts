@@ -46,12 +46,31 @@ export class RegisterComponent {
         return;
       }
 
-      // Redirect to dashboard after successful registration
+      // Refresh session and redirect to dashboard
+      await this.authService.refreshSession();
       this.router.navigate(['/dashboard']);
     } catch (err) {
       this.error = 'An unexpected error occurred';
       console.error(err);
     } finally {
+      this.loading = false;
+    }
+  }
+
+  async signInWithGoogle() {
+    this.error = '';
+    this.loading = true;
+
+    try {
+      const authClient = this.authService.getClient();
+      const callbackURL = `${window.location.origin}/dashboard`;
+      await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: callbackURL,
+      });
+    } catch (err) {
+      this.error = 'Google sign-in failed';
+      console.error(err);
       this.loading = false;
     }
   }

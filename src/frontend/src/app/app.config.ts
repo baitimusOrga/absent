@@ -34,7 +34,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: APP_INITIALIZER,
       multi: true,
-      useFactory: () => () => fetchFrontendConfig(),
+      useFactory: () => fetchFrontendConfig,
     }
   ]
 };
