@@ -25,4 +25,29 @@ export const auth = betterAuth({
     admin(),
   ],
   trustedOrigins: process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) ?? [],
+  user: {
+    additionalFields: {
+      schulnetzCalendarUrl: {
+        type: 'string',
+        required: false,
+      },
+      school: {
+        type: 'string',
+        required: false,
+        enum: ['BBZW', 'BBZG'],
+      },
+      berufsbildner: {
+        type: 'string',
+        required: false,
+      },
+      berufsbildnerEmail: {
+        type: 'string',
+        required: false,
+      },
+      berufsbildnerPhoneNumber: {
+        type: 'string',
+        required: false,
+      },
+    },
+  },
 });
