@@ -1,19 +1,25 @@
 import { createAuthClient } from 'better-auth/client';
 
-// Get the API URL from the global config
-const getApiUrl = (): string => {
-  if (typeof window !== 'undefined') {
-    const config = (window as any).__FRONTEND_CONFIG__;
-    if (config?.apiUrl) {
-      return config.apiUrl;
-    }
+// Lazy initialization - creates client when first accessed
+let authClientInstance: ReturnType<typeof createAuthClient> | null = null;
+
+const getAuthClient = () => {
+  if (!authClientInstance) {
+    const apiUrl = typeof window !== 'undefined' && (window as any).__FRONTEND_CONFIG__?.apiUrl
+      ? (window as any).__FRONTEND_CONFIG__.apiUrl
+      : 'http://localhost:3000';
+    
+    authClientInstance = createAuthClient({
+      baseURL: apiUrl,
+    });
   }
-  // Fallback for development
-  return 'http://localhost:3000';
+  return authClientInstance;
 };
 
-export const authClient = createAuthClient({
-  baseURL: getApiUrl(),
+export const authClient = new Proxy({} as ReturnType<typeof createAuthClient>, {
+  get(target, prop) {
+    return getAuthClient()[prop as keyof ReturnType<typeof createAuthClient>];
+  }
 });
 
 export const {
