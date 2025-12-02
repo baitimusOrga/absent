@@ -34,8 +34,8 @@ export class LoginComponent {
         return;
       }
 
-      // Redirect to home after successful login
-      this.router.navigate(['/']);
+      // Redirect to dashboard after successful login
+      this.router.navigate(['/dashboard']);
     } catch (err) {
       this.error = 'An unexpected error occurred';
       console.error(err);
