@@ -1,14 +1,11 @@
 import { MongoClient, type Db } from 'mongodb';
+import type { DatabaseConfig } from '../config';
 
 let client: MongoClient | null = null;
 let database: Db | null = null;
 
-const defaultUri = 'mongodb://absent:absent@mongo:27017/absent?authSource=admin';
-const defaultDbName = 'absent';
-
-export const connectToDatabase = async () => {
-  const uri = process.env.MONGO_URI ?? defaultUri;
-  const dbName = process.env.MONGO_DB ?? defaultDbName;
+export const connectToDatabase = async (options: DatabaseConfig) => {
+  const { uri, dbName } = options;
 
   if (client) {
     return { client, db: database ?? client.db(dbName) };

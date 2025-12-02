@@ -1,12 +1,26 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { FRONTEND_CONFIG, type FrontendConfig } from './config/frontend-config';
+
+const testConfig: FrontendConfig = {
+  production: false,
+  appName: 'Test App',
+  version: '0.0.0-test',
+  apiUrl: 'http://localhost:3000',
+};
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])]
+      providers: [
+        provideRouter([]),
+        {
+          provide: FRONTEND_CONFIG,
+          useValue: testConfig,
+        }
+      ]
     }).compileComponents();
   });
 

@@ -23,12 +23,7 @@ services:
       context: ./src/backend
       dockerfile: Dockerfile.prod
     env_file:
-      - ./.env
-    environment:
-      NODE_ENV: production
-      PORT: "${BACKEND_PORT:-3000}"
-      MONGO_URI: "${MONGO_URI:-mongodb://absent:absent@mongo:27017/absent?authSource=admin}"
-      MONGO_DB: "${MONGO_DB:-absent}"
+      - ./src/backend/.env.production
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     depends_on:
@@ -41,9 +36,7 @@ services:
       context: ./src/frontend
       dockerfile: Dockerfile.prod
     env_file:
-      - ./.env
-    environment:
-      NODE_ENV: production
+      - ./src/frontend/.env.production
     ports:
       - "${FRONTEND_PORT:-8080}:80"
     depends_on:
