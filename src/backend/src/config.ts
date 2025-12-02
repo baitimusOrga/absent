@@ -53,6 +53,10 @@ export interface AppConfig {
   cors: CorsConfig;
   metadata: RuntimeMetadata;
   database: DatabaseConfig;
+  auth: {
+    secret: string;
+    url: string;
+  };
 }
 
 export const loadAppConfig = (): AppConfig => {
@@ -79,6 +83,10 @@ export const loadAppConfig = (): AppConfig => {
     database: {
       uri: requireEnv('MONGO_URI'),
       dbName: requireEnv('MONGO_DB'),
+    },
+    auth: {
+      secret: requireEnv('BETTER_AUTH_SECRET'),
+      url: requireEnv('BETTER_AUTH_URL'),
     },
   };
 };

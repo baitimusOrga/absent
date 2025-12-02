@@ -4,8 +4,7 @@ services:
     build:
       context: ./src/database
       dockerfile: Dockerfile
-    env_file:
-      - ./.env.development
+    
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_ROOT_USERNAME:-absent}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_ROOT_PASSWORD:-absent}"

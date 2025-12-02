@@ -4,16 +4,19 @@
 	<div class="auth-card">
 		<span class="badge">Welcome back</span>
 		<h1>Log in</h1>
-		<form class="auth-form" novalidate>
+		<form class="auth-form" (ngSubmit)="onSubmit()" novalidate>
+			@if (error) {
+				<div class="error-message">{{ error }}</div>
+			}
 			<label class="field">
 				<span>Email</span>
-				<input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+				<input type="email" name="email" [(ngModel)]="email" placeholder="you@example.com" autocomplete="email" required [disabled]="loading">
 			</label>
 			<label class="field">
 				<span>Password</span>
-				<input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+				<input type="password" name="password" [(ngModel)]="password" placeholder="••••••••" autocomplete="current-password" required [disabled]="loading">
 			</label>
-			<button class="primary" type="button">Log in</button>
+			<button class="primary" type="submit" [disabled]="loading">{{ loading ? 'Logging in...' : 'Log in' }}</button>
 		</form>
 		<p class="switch">Need an account? <a routerLink="/register">Create one</a>.</p>
 		<p class="support">Need a hand? <a href="mailto:hello@absent.fun">hello@absent.fun</a></p>
