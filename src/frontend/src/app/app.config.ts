@@ -17,6 +17,9 @@ const fetchFrontendConfig = async (): Promise<void> => {
   }
 
   setFrontendConfig(payload as FrontendConfig);
+  
+  // Make config available globally for auth-client
+  (window as any).__FRONTEND_CONFIG__ = payload;
 };
 
 export const appConfig: ApplicationConfig = {
