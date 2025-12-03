@@ -26,6 +26,7 @@ export class AuthService {
   private authClient: any;
   private sessionCheckPromise: Promise<void> | null = null;
   private isInitialized = false;
+  private config = inject(FRONTEND_CONFIG);
 
   constructor() {
     // Delay auth client initialization until it's needed
@@ -33,8 +34,7 @@ export class AuthService {
 
   private ensureAuthClient() {
     if (!this.authClient) {
-      const config = inject(FRONTEND_CONFIG);
-      this.authClient = initAuthClient(config.apiUrl);
+      this.authClient = initAuthClient(this.config.apiUrl);
     }
     return this.authClient;
   }
@@ -116,5 +116,33 @@ export class AuthService {
   async refreshSession(): Promise<void> {
     this.isInitialized = false;
     await this.checkSession();
+  }
+
+  // Get auth headers for authenticated requests
+  getAuthHeaders(): HeadersInit {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
+  // Make authenticated request to backend
+  async authenticatedFetch(url: string, options?: RequestInit): Promise<Response> {
+    const client = this.ensureAuthClient();
+    const fullUrl = url.startsWith('http') ? url : `${this.config.apiUrl}${url}`;
+    
+    // Get session token from better-auth
+    const session = await client.getSession();
+    
+    const headers = new Headers(options?.headers);
+    headers.set('Content-Type', 'application/json');
+    
+    // Better-auth automatically includes session cookie
+    const response = await fetch(fullUrl, {
+      ...options,
+      headers,
+      credentials: 'include', // Important for cookie-based auth
+    });
+    
+    return response;
   }
 }

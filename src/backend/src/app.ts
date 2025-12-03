@@ -1,8 +1,9 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import { healthRouter } from './routes/health';
+import { pdfRouter } from './routes/pdf';
 import type { AppConfig } from './config';
-import { auth } from './auth';
+import { auth } from './services/auth';
 import { toNodeHandler } from 'better-auth/node';
 
 /**
@@ -36,8 +37,9 @@ export const createApp = (config: AppConfig): Application => {
   });
 
   app.all('/api/auth/{*catchAll}', toNodeHandler(auth));
-
+  
   app.use('/', healthRouter);
+  app.use('/', pdfRouter);
 
   app.use((req, res) => {
     res.status(404).json({
