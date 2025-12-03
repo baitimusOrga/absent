@@ -100,8 +100,18 @@ async function fillPdf(data: PdfFillData, userData?: any): Promise<Buffer> {
 		const berufsbildnerName = userData?.berufsbildner || '';
 		const berufsbildnerEmail = userData?.berufsbildnerEmail || '';
 		
+		// Format dateOfBirth as string if it's a Date object
+		let dateOfBirth = '';
+		if (userData?.dateOfBirth) {
+			if (userData.dateOfBirth instanceof Date) {
+				dateOfBirth = userData.dateOfBirth.toISOString().split('T')[0];
+			} else if (typeof userData.dateOfBirth === 'string') {
+				dateOfBirth = userData.dateOfBirth;
+			}
+		}
+		
 		form.getTextField(fieldMapping.studentName).setText(studentName);
-		form.getTextField(fieldMapping.geburtsdatum).setText(data.geburtsdatum || '');
+		form.getTextField(fieldMapping.geburtsdatum).setText(dateOfBirth || data.geburtsdatum || '');
 		form.getTextField(fieldMapping.klasse).setText(data.klasse || '');
 		form.getTextField(fieldMapping.datumDerAbsenz).setText(data.datumDerAbsenz || '');
 		form.getTextField(fieldMapping.begruendung).setText(data.begruendung || '');

@@ -14,73 +14,31 @@
   <!-- Info Box -->
   <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
     <p class="text-sm text-blue-800">
-      <strong>Note:</strong> Student name, school, and Berufsbildner info will be automatically filled from your user profile.
+      <strong>Info:</strong> All other details (student info, school, lessons) are automatically filled from your profile and calendar data.
     </p>
   </div>
 
   <!-- PDF Generation Form -->
   <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6">
-    <h3 class="text-xl font-semibold mb-4">Generate PDF</h3>
+    <h3 class="text-xl font-semibold mb-4">Generate Absence Form</h3>
     
-    <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="space-y-4">
       <div>
-        <label class="block text-sm font-bold mb-2">Birth Date (optional)</label>
-        <input [(ngModel)]="formData.geburtsdatum" class="shadow border rounded w-full py-2 px-3" type="text" placeholder="01.01.2005">
-      </div>
-      
-      <div>
-        <label class="block text-sm font-bold mb-2">Class (optional)</label>
-        <input [(ngModel)]="formData.klasse" class="shadow border rounded w-full py-2 px-3" type="text" placeholder="IT-23a">
-      </div>
-      
-      <div>
-        <label class="block text-sm font-bold mb-2">Date of Absence (optional)</label>
-        <input [(ngModel)]="formData.datumDerAbsenz" class="shadow border rounded w-full py-2 px-3" type="text" placeholder="15.01.2024">
-      </div>
-      
-      <div>
-        <label class="block text-sm font-bold mb-2">Form Type *</label>
-        <select [(ngModel)]="formData.formType" class="shadow border rounded w-full py-2 px-3">
-          <option value="Entschuldigung">Entschuldigung</option>
-          <option value="Urlaubsgesuch">Urlaubsgesuch</option>
+        <label class="block text-sm font-bold mb-2">Form Type <span class="text-red-500">*</span></label>
+        <select [(ngModel)]="formData.formType" class="shadow border rounded w-full py-2 px-3" required>
+          <option value="Entschuldigung">Entschuldigung (Excuse)</option>
+          <option value="Urlaubsgesuch">Urlaubsgesuch (Vacation Request)</option>
         </select>
       </div>
-    </div>
-    
-    <div class="mb-4">
-      <label class="block text-sm font-bold mb-2">Reason (optional)</label>
-      <textarea [(ngModel)]="formData.begruendung" class="shadow border rounded w-full py-2 px-3" rows="3" placeholder="Arztbesuch"></textarea>
-    </div>
-    
-    <!-- Missed Lessons -->
-    <div class="mb-4">
-      <div class="flex justify-between items-center mb-2">
-        <label class="block text-sm font-bold">Missed Lessons</label>
-        <button (click)="addLesson()" class="bg-green-500 hover:bg-green-600 text-white text-sm py-1 px-3 rounded">
-          + Add Lesson
-        </button>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2">Date of Absence <span class="text-red-500">*</span></label>
+        <input [(ngModel)]="formData.datumDerAbsenz" class="shadow border rounded w-full py-2 px-3" type="date" required>
       </div>
       
-      <div *ngFor="let lesson of formData.missedLessons; let i = index" class="border rounded p-4 mb-2">
-        <div class="grid grid-cols-4 gap-2 mb-2">
-          <div>
-            <label class="block text-xs font-bold mb-1">Lessons</label>
-            <input [(ngModel)]="lesson.anzahlLektionen" class="shadow border rounded w-full py-1 px-2 text-sm" type="text" placeholder="2">
-          </div>
-          <div>
-            <label class="block text-xs font-bold mb-1">Date</label>
-            <input [(ngModel)]="lesson.wochentagUndDatum" class="shadow border rounded w-full py-1 px-2 text-sm" type="text" placeholder="Montag, 15.01.2024">
-          </div>
-          <div>
-            <label class="block text-xs font-bold mb-1">Subject</label>
-            <input [(ngModel)]="lesson.fach" class="shadow border rounded w-full py-1 px-2 text-sm" type="text" placeholder="Mathematik">
-          </div>
-          <div>
-            <label class="block text-xs font-bold mb-1">Teacher</label>
-            <input [(ngModel)]="lesson.lehrperson" class="shadow border rounded w-full py-1 px-2 text-sm" type="text" placeholder="Frau Schmidt">
-          </div>
-        </div>
-        <button (click)="removeLesson(i)" class="text-red-500 hover:text-red-700 text-xs">Remove</button>
+      <div>
+        <label class="block text-sm font-bold mb-2">Reason for Absence <span class="text-red-500">*</span></label>
+        <textarea [(ngModel)]="formData.begruendung" class="shadow border rounded w-full py-2 px-3" rows="3" placeholder="e.g., Doctor's appointment, Illness, Family emergency" required></textarea>
       </div>
     </div>
     
