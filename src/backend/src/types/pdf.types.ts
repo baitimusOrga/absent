@@ -24,14 +24,14 @@ export interface MissedLesson {
  * Input data for filling the PDF form
  */
 export interface PdfFillData {
-  /** Date of absence */
-  datumDerAbsenz?: string;
+  /** Date of absence (required) */
+  datumDerAbsenz: string;
   /** Student's birth date */
   geburtsdatum?: string;
   /** Class identifier */
   klasse?: string;
-  /** Reason for absence */
-  begruendung?: string;
+  /** Reason for absence (required) */
+  begruendung: string;
   /** Type of form (excuse or vacation request) */
   formType: FormType;
   /** List of missed lessons */

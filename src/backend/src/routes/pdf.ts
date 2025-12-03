@@ -21,10 +21,10 @@ pdfRouter.post('/pdf/fill', requireAuth, async (req, res) => {
     const user = (req as any).user;
     
     // Validate required fields
-    if (!fillData.formType) {
+    if (!fillData.formType || !fillData.begruendung || !fillData.datumDerAbsenz) {
       res.status(400).json({
         error: 'Missing required fields',
-        required: ['formType']
+        required: ['formType', 'begruendung', 'datumDerAbsenz']
       });
       return;
     }

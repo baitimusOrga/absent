@@ -26,25 +26,10 @@ export class PdfTestComponent {
   
   // Form data
   formData = {
-    datumDerAbsenz: '15.01.2024',
-    geburtsdatum: '01.01.2005',
-    klasse: 'IT-23a',
-    begruendung: 'Arztbesuch',
+    datumDerAbsenz: this.getTodayDate(),
+    begruendung: '',
     formType: 'Entschuldigung' as 'Entschuldigung' | 'Urlaubsgesuch',
-    missedLessons: [
-      {
-        anzahlLektionen: '2',
-        wochentagUndDatum: 'Montag, 15.01.2024',
-        fach: 'Mathematik',
-        lehrperson: 'Frau Schmidt'
-      },
-      {
-        anzahlLektionen: '1',
-        wochentagUndDatum: 'Montag, 15.01.2024',
-        fach: 'Deutsch',
-        lehrperson: 'Herr Müller'
-      }
-    ] as MissedLesson[]
+    missedLessons: [] as MissedLesson[]
   };
 
   async testStatus() {
@@ -113,5 +98,10 @@ export class PdfTestComponent {
   
   removeLesson(index: number) {
     this.formData.missedLessons.splice(index, 1);
+  }
+  
+  getTodayDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   }
 }
