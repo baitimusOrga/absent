@@ -79,7 +79,8 @@ export abstract class BaseRepository<T extends Document> {
   async insertOne(document: OptionalId<T>): Promise<WithId<T>> {
     try {
       const collection = this.getCollection();
-      const result = await collection.insertOne(document);
+      // Cast to any to bypass strict type checking for MongoDB's insertOne
+      const result = await collection.insertOne(document as any);
       
       return { ...document, _id: result.insertedId } as WithId<T>;
     } catch (error) {
