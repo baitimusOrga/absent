@@ -31,6 +31,10 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
       },
+      fullname: {
+        type: 'string',
+        required: false,
+      },
       school: {
         type: 'string',
         required: false,
@@ -48,6 +52,7 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
       },
+      
     },
   },
 });

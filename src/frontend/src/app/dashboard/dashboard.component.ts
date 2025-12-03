@@ -20,6 +20,7 @@ export class DashboardComponent implements OnInit {
   // Edit form fields
   editForm = {
     schulnetzCalendarUrl: '',
+    fullname: '',
     school: '',
     berufsbildner: '',
     berufsbildnerEmail: '',
@@ -46,6 +47,7 @@ export class DashboardComponent implements OnInit {
     if (this.user) {
       this.editForm = {
         schulnetzCalendarUrl: this.user.schulnetzCalendarUrl || '',
+        fullname: this.user.fullname || '',
         school: this.user.school || '',
         berufsbildner: this.user.berufsbildner || '',
         berufsbildnerEmail: this.user.berufsbildnerEmail || '',
