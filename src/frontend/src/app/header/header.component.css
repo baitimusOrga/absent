@@ -246,3 +246,17 @@ transform: translateY(0) scale(1);
 pointer-events: auto;
 }
 }
+
+.logout-button {
+background: transparent;
+border: none;
+cursor: pointer;
+font: inherit;
+padding: 0;
+color: #ef4444;
+text-decoration: none;
+}
+
+.logout-button:hover {
+color: #dc2626;
+}

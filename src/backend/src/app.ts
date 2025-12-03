@@ -1,28 +1,24 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import { healthRouter } from './routes/health';
+import type { AppConfig } from './config';
+import { auth } from './auth';
+import { toNodeHandler } from 'better-auth/node';
 
 /**
  * Builds and configures the Express application instance.
  */
-export const createApp = (): Application => {
+export const createApp = (config: AppConfig): Application => {
   const app = express();
 
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
 
-  const isProduction = process.env.NODE_ENV === 'production';
-  const configuredOrigins = process.env.CORS_ORIGIN?.split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
-  const productionOrigins = configuredOrigins && configuredOrigins.length > 0
-    ? configuredOrigins
-    : ['https://absent.breachmarket.xyz'];
-
-  if (isProduction) {
+  if (config.cors.enabled) {
+    // Only allow known origins when running in production. CORS is wide open in other environments.
     app.use(
       cors({
-        origin: productionOrigins,
+        origin: config.cors.allowList,
         credentials: true,
       })
     );
@@ -33,11 +29,13 @@ export const createApp = (): Application => {
 
   app.get('/', (_req, res) => {
     res.json({
-      name: process.env.APP_NAME ?? 'absent-backend',
-      version: process.env.APP_VERSION ?? '0.0.1',
+      name: config.metadata.name,
+      version: config.metadata.version,
       timestamp: new Date().toISOString(),
     });
   });
+
+  app.all('/api/auth/{*catchAll}', toNodeHandler(auth));
 
   app.use('/', healthRouter);
 
