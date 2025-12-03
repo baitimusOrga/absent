@@ -10,6 +10,7 @@ export interface User {
   role?: string;
   emailVerified?: boolean;
   schulnetzCalendarUrl?: string;
+  fullname?: string;
   school?: string;
   berufsbildner?: string;
   berufsbildnerEmail?: string;

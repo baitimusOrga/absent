@@ -9,6 +9,7 @@
       <h2>Your Account</h2>
       <div class="user-info" *ngIf="user">
         <p><strong>Name:</strong> {{ user.name || 'Not set' }}</p>
+        <p><strong>Full Name:</strong> {{ user.fullname || 'Not set' }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
         <p><strong>User ID:</strong> {{ user.id }}</p>
       </div>
@@ -21,6 +22,10 @@
       </div>
 
       <div *ngIf="!isEditing" class="profile-info">
+        <div class="info-row">
+          <strong>Full Name:</strong>
+          <span>{{ user?.fullname || 'Not set' }}</span>
+        </div>
         <div class="info-row">
           <strong>School:</strong>
           <span>{{ user?.school || 'Not set' }}</span>
@@ -44,6 +49,18 @@
       </div>
 
       <form *ngIf="isEditing" class="edit-form" (ngSubmit)="saveProfile()">
+        <div class="form-group">
+          <label for="fullname">Full Name</label>
+          <input 
+            type="text" 
+            id="fullname" 
+            [(ngModel)]="editForm.fullname" 
+            name="fullname"
+            class="form-control"
+            placeholder="Full legal name"
+          />
+        </div>
+
         <div class="form-group">
           <label for="school">School</label>
           <select id="school" [(ngModel)]="editForm.school" name="school" class="form-control">
