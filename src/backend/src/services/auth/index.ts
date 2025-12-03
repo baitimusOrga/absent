@@ -1,15 +1,39 @@
-import { betterAuth, date } from 'better-auth';
+/**
+ * Better Auth configuration and initialization
+ */
+
+import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { admin } from 'better-auth/plugins';
+import { loadAuthConfig, loadDatabaseConfig } from '../../config';
+import { logger } from '../../utils/logger';
 
+/**
+ * Get MongoDB instance for Better Auth
+ * Uses separate client to avoid conflicts with main application connection
+ */
 const getMongoDbForAuth = () => {
-  const uri = process.env.MONGO_URI ?? 'mongodb://absent:absent@mongo:27017/absent?authSource=admin';
-  const dbName = process.env.MONGO_DB ?? 'absent';
-  const client = new MongoClient(uri);
-  return client.db(dbName);
+  try {
+    const dbConfig = loadDatabaseConfig();
+    const client = new MongoClient(dbConfig.uri);
+    
+    logger.debug('Initializing MongoDB adapter for Better Auth', {
+      database: dbConfig.dbName,
+    });
+    
+    return client.db(dbConfig.dbName);
+  } catch (error) {
+    logger.error('Failed to initialize MongoDB for Better Auth', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    throw error;
+  }
 };
 
+/**
+ * Initialize and configure Better Auth
+ */
 export const auth = betterAuth({
   database: mongodbAdapter(getMongoDbForAuth()),
   emailAndPassword: {
@@ -21,10 +45,8 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  plugins: [
-    admin(),
-  ],
-  trustedOrigins: process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) ?? [],
+  plugins: [admin()],
+  trustedOrigins: loadAuthConfig().trustedOrigins,
   user: {
     additionalFields: {
       schulnetzCalendarUrl: {
@@ -51,7 +73,6 @@ export const auth = betterAuth({
       berufsbildnerPhoneNumber: {
         type: 'string',
         required: false,
-
       },
       dateOfBirth: {
         type: 'date',
@@ -60,3 +81,5 @@ export const auth = betterAuth({
     },
   },
 });
+
+logger.info('Better Auth initialized successfully');
