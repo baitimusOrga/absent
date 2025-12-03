@@ -45,6 +45,8 @@ export interface PdfFillData {
   bemerkung?: string;
   /** School type determines which PDF template to use */
   school: School;
+  /** Use short names for teachers and subjects (default: false) */
+  useShortNames?: boolean;
 }
 
 /**

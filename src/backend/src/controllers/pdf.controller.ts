@@ -49,11 +49,15 @@ export const fillPdf = asyncHandler(async (req: Request, res: Response): Promise
     calendarUrl: (user as any).schulnetzCalendarUrl,
   };
 
+  // Determine whether to use short names (default to false if not specified)
+  const useShortNames = fillData.useShortNames ?? false;
+
   logger.debug('Processing PDF fill request', {
     userId: user.id,
     school: fillData.school || userData.school,
     formType: fillData.formType,
     hasCalendarUrl: !!userData.calendarUrl,
+    useShortNames,
   });
 
   // If calendar URL is provided and no missed lessons are specified, fetch from calendar
@@ -77,8 +81,8 @@ export const fillPdf = asyncHandler(async (req: Request, res: Response): Promise
       const missedLessons: MissedLesson[] = processedEvents.map(event => ({
         anzahlLektionen: event.count.toString(),
         wochentagUndDatum: event.datum,
-        fach: getSubjectName(event.fach.trim()),
-        lehrperson: getTeacherName(event.lehrer.trim()),
+        fach: useShortNames ? event.fach.trim() : getSubjectName(event.fach.trim()),
+        lehrperson: useShortNames ? event.lehrer.trim() : getTeacherName(event.lehrer.trim()),
         klasse: event.klasse,
       }));
       
