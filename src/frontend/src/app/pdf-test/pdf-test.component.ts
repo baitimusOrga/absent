@@ -29,7 +29,8 @@ export class PdfTestComponent {
     datumDerAbsenz: this.getTodayDate(),
     begruendung: '',
     formType: 'Entschuldigung' as 'Entschuldigung' | 'Urlaubsgesuch',
-    missedLessons: [] as MissedLesson[]
+    missedLessons: [] as MissedLesson[],
+    useShortNames: false
   };
 
   async testStatus() {

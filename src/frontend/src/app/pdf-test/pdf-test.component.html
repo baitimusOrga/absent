@@ -40,6 +40,17 @@
         <label class="block text-sm font-bold mb-2">Reason for Absence <span class="text-red-500">*</span></label>
         <textarea [(ngModel)]="formData.begruendung" class="shadow border rounded w-full py-2 px-3" rows="3" placeholder="e.g., Doctor's appointment, Illness, Family emergency" required></textarea>
       </div>
+      
+      <div class="flex items-center">
+        <input 
+          type="checkbox" 
+          id="useShortNames" 
+          [(ngModel)]="formData.useShortNames" 
+          class="mr-2 w-4 h-4">
+        <label for="useShortNames" class="text-sm font-medium">
+          Use short names for teachers and subjects (e.g., "HEJ" instead of full name)
+        </label>
+      </div>
     </div>
     
     <button 
