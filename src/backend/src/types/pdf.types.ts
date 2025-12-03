@@ -1,10 +1,11 @@
 /**
- * Type definitions for PDF filling system
+ * Enhanced PDF type definitions
  */
 
-export type School = 'BBZW' | 'BBZG';
+import { SCHOOLS, FORM_TYPES } from '../constants';
 
-export type FormType = 'Entschuldigung' | 'Urlaubsgesuch';
+export type School = typeof SCHOOLS[keyof typeof SCHOOLS];
+export type FormType = typeof FORM_TYPES[keyof typeof FORM_TYPES];
 
 /**
  * Represents a single missed lesson
@@ -40,8 +41,8 @@ export interface PdfFillData {
   datumUnterschrift?: string;
   /** Additional remarks (BBZG only) */
   bemerkung?: string;
-  /** School type determines which PDF template to use (auto-filled from user profile if not provided) */
-  school?: School;
+  /** School type determines which PDF template to use */
+  school: School;
 }
 
 /**
@@ -80,4 +81,25 @@ export interface PdfTemplate {
   fieldMapping: PdfFieldMapping;
   /** Maximum number of lesson rows supported */
   maxLessonRows: number;
+}
+
+/**
+ * User data extracted from authentication
+ */
+export interface UserData {
+  fullname?: string;
+  school?: School;
+  berufsbildner?: string;
+  berufsbildnerEmail?: string;
+  berufsbildnerPhoneNumber?: string;
+  dateOfBirth?: Date | string;
+}
+
+/**
+ * PDF service status
+ */
+export interface PdfStatus {
+  available: boolean;
+  message: string;
+  templates?: School[];
 }

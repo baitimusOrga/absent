@@ -1,22 +1,37 @@
-import express, { Application, NextFunction, Request, Response } from 'express';
+/**
+ * Express application setup and configuration
+ */
+
+import express, { Application } from 'express';
 import cors from 'cors';
-import { healthRouter } from './routes/health';
-import { pdfRouter } from './routes/pdf';
+import { toNodeHandler } from 'better-auth/node';
 import type { AppConfig } from './config';
 import { auth } from './services/auth';
-import { toNodeHandler } from 'better-auth/node';
+import { healthRouter, pdfRouter } from './routes';
+import { requestLogger } from './middleware';
+import { errorHandler, notFoundHandler } from './utils/errors';
+import { logger } from './utils/logger';
 
 /**
- * Builds and configures the Express application instance.
+ * Builds and configures the Express application instance
  */
 export const createApp = (config: AppConfig): Application => {
   const app = express();
 
+  logger.info('Configuring Express application...');
+
+  // Trust proxy for production environments
   app.set('trust proxy', 1);
+  
+  // Disable X-Powered-By header for security
   app.disable('x-powered-by');
 
+  // Configure CORS
   if (config.cors.enabled) {
-    // Only allow known origins when running in production. CORS is wide open in other environments.
+    logger.debug('CORS enabled with specific origins', {
+      origins: config.cors.allowList,
+    });
+    
     app.use(
       cors({
         origin: config.cors.allowList,
@@ -24,36 +39,41 @@ export const createApp = (config: AppConfig): Application => {
       })
     );
   } else {
+    logger.debug('CORS enabled for all origins');
     app.use(cors());
   }
-  app.use(express.json());
 
+  // Body parsing middleware
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+
+  // Request logging middleware
+  app.use(requestLogger);
+
+  // Root endpoint
   app.get('/', (_req, res) => {
     res.json({
       name: config.metadata.name,
       version: config.metadata.version,
+      environment: config.metadata.environment,
       timestamp: new Date().toISOString(),
     });
   });
 
-  app.all('/api/auth/{*catchAll}', toNodeHandler(auth));
-  
-  app.use('/', healthRouter);
-  app.use('/', pdfRouter);
+  // Authentication routes (Better Auth)
+  app.use('/api/auth', toNodeHandler(auth));
 
-  app.use((req, res) => {
-    res.status(404).json({
-      message: 'Not Found',
-      path: req.path,
-    });
-  });
+  // Application routes
+  app.use(healthRouter);
+  app.use(pdfRouter);
 
-  app.use(
-    (error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      res.status(500).json({ message });
-    }
-  );
+  // 404 handler for undefined routes
+  app.use(notFoundHandler);
+
+  // Global error handler (must be last)
+  app.use(errorHandler);
+
+  logger.info('Express application configured successfully');
 
   return app;
 };

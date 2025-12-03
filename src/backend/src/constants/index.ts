@@ -1,0 +1,55 @@
+/**
+ * Application-wide constants
+ */
+
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
+} as const;
+
+export const ERROR_CODES = {
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  AUTHENTICATION_FAILED: 'AUTHENTICATION_FAILED',
+  UNAUTHORIZED_ACCESS: 'UNAUTHORIZED_ACCESS',
+  RESOURCE_NOT_FOUND: 'RESOURCE_NOT_FOUND',
+  DATABASE_ERROR: 'DATABASE_ERROR',
+  PDF_GENERATION_ERROR: 'PDF_GENERATION_ERROR',
+  TEMPLATE_NOT_FOUND: 'TEMPLATE_NOT_FOUND',
+  INVALID_INPUT: 'INVALID_INPUT',
+} as const;
+
+export const SCHOOLS = {
+  BBZW: 'BBZW',
+  BBZG: 'BBZG',
+} as const;
+
+export const FORM_TYPES = {
+  ENTSCHULDIGUNG: 'Entschuldigung',
+  URLAUBSGESUCH: 'Urlaubsgesuch',
+} as const;
+
+export const AUTH_ROLES = {
+  USER: 'user',
+  ADMIN: 'admin',
+} as const;
+
+export const DATABASE = {
+  CONNECTION_TIMEOUT: 10000, // 10 seconds
+  MAX_RETRIES: 3,
+  RETRY_DELAY: 1000, // 1 second
+} as const;
+
+export const PDF = {
+  MAX_LESSON_ROWS: 7,
+  ALLOWED_MIME_TYPES: ['application/pdf'],
+  MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
+} as const;
