@@ -24,7 +24,8 @@ export class DashboardComponent implements OnInit {
     school: '',
     berufsbildner: '',
     berufsbildnerEmail: '',
-    berufsbildnerPhoneNumber: ''
+    berufsbildnerPhoneNumber: '',
+    dateOfBirth: ''
   };
 
   schools = ['BBZW', 'BBZG'];
@@ -45,13 +46,21 @@ export class DashboardComponent implements OnInit {
 
   loadFormData(): void {
     if (this.user) {
+      // Format date to yyyy-MM-dd if it exists
+      let dateOfBirth = '';
+      if (this.user.dateOfBirth) {
+        const date = new Date(this.user.dateOfBirth);
+        dateOfBirth = date.toISOString().split('T')[0];
+      }
+      
       this.editForm = {
         schulnetzCalendarUrl: this.user.schulnetzCalendarUrl || '',
         fullname: this.user.fullname || '',
         school: this.user.school || '',
         berufsbildner: this.user.berufsbildner || '',
         berufsbildnerEmail: this.user.berufsbildnerEmail || '',
-        berufsbildnerPhoneNumber: this.user.berufsbildnerPhoneNumber || ''
+        berufsbildnerPhoneNumber: this.user.berufsbildnerPhoneNumber || '',
+        dateOfBirth: dateOfBirth
       };
     }
   }

@@ -15,6 +15,7 @@ export interface User {
   berufsbildner?: string;
   berufsbildnerEmail?: string;
   berufsbildnerPhoneNumber?: string;
+  dateOfBirth?: string;
 }
 
 @Injectable({

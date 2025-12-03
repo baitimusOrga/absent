@@ -1,4 +1,4 @@
-import { betterAuth } from 'better-auth';
+import { betterAuth, date } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { admin } from 'better-auth/plugins';
@@ -51,8 +51,12 @@ export const auth = betterAuth({
       berufsbildnerPhoneNumber: {
         type: 'string',
         required: false,
+
       },
-      
+      dateOfBirth: {
+        type: 'date',
+        required: false,
+      },
     },
   },
 });
