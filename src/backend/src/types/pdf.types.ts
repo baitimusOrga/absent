@@ -19,6 +19,8 @@ export interface MissedLesson {
   fach: string;
   /** Teacher name */
   lehrperson: string;
+  /** Class identifier (optional, extracted from calendar) */
+  klasse?: string;
 }
 
 /**
@@ -93,6 +95,7 @@ export interface UserData {
   berufsbildnerEmail?: string;
   berufsbildnerPhoneNumber?: string;
   dateOfBirth?: Date | string;
+  calendarUrl?: string;
 }
 
 /**
