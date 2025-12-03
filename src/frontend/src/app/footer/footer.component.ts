@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FRONTEND_CONFIG } from '../config/frontend-config';
 
 @Component({
   selector: 'app-footer',
@@ -7,5 +8,7 @@ import { Component } from '@angular/core';
   styleUrl: './footer.component.css'
 })
 export class FooterComponent {
+	private readonly config = inject(FRONTEND_CONFIG);
 	readonly currentYear = new Date().getFullYear();
+	readonly appName = this.config.appName;
 }

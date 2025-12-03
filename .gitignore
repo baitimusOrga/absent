@@ -7,9 +7,16 @@ coverage/
 .tmp/
 
 # Environment files
-.env
+
 .env.*
 !.env.development
+!/src/backend/.env.development
+!/src/backend/.env.production
+!/src/frontend/.env.development
+!/src/frontend/.env.production
+
+# Generated frontend config
+src/frontend/public/config/config.json
 
 # OS junk
 .DS_Store

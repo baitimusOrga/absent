@@ -4,8 +4,7 @@ services:
     build:
       context: ./src/database
       dockerfile: Dockerfile
-    env_file:
-      - ./.env.development
+    
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_ROOT_USERNAME:-absent}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_ROOT_PASSWORD:-absent}"
@@ -21,11 +20,7 @@ services:
       context: ./src/backend
       dockerfile: Dockerfile
     env_file:
-      - ./.env.development
-    environment:
-      PORT: "${BACKEND_PORT:-3000}"
-      MONGO_URI: "${MONGO_URI:-mongodb://absent:absent@mongo:27017/absent?authSource=admin}"
-      MONGO_DB: "${MONGO_DB:-absent}"
+      - ./src/backend/.env.development
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     volumes:
@@ -41,10 +36,7 @@ services:
       context: ./src/frontend
       dockerfile: Dockerfile
     env_file:
-      - ./.env.development
-    environment:
-      CHOKIDAR_USEPOLLING: "1"
-      NG_CLI_ANALYTICS: "false"
+      - ./src/frontend/.env.development
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
     volumes:
