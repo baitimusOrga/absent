@@ -634,6 +634,30 @@
 	line-height: 1.6;
 }
 
+/* Feature card with image */
+.feature-card.with-image {
+	grid-row: span 2;
+}
+
+.feature-image {
+	margin-top: 1.25rem;
+	border-radius: 10px;
+	overflow: hidden;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.02);
+}
+
+.feature-image img {
+	width: 100%;
+	height: auto;
+	display: block;
+	transition: transform 0.3s ease;
+}
+
+.feature-card.with-image:hover .feature-image img {
+	transform: scale(1.02);
+}
+
 /* Auto-fill demo in feature card */
 .feature-visual {
 	margin-top: 1.5rem;

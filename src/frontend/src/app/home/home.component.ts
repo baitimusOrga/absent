@@ -38,8 +38,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       description: 'Kopiere deine Schulnetz-Kalender URL und füge sie in dein Profil ein.'
     },
     {
-      title: 'Lektionen auswählen',
-      description: 'Wähle die Lektionen aus, die du verpasst hast oder verpassen wirst.'
+      title: 'Datum auswählen',
+      description: 'Wähle das Datum aus, an dem du gefehlt hast oder fehlen wirst.'
     },
     {
       title: 'PDF herunterladen',
