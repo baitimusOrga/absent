@@ -19,6 +19,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # 🌟 CRITICAL FIX: Sanitize All Dockerfiles 🌟
+      # This step fixes the line endings AND removes the broken syntax line
+      - name: Sanitize Dockerfiles
+        run: |
+          echo "🧹 Cleaning up Dockerfiles..."
+          
+          # 1. Install dos2unix if missing
+          if [ -x "$(command -v apk)" ]; then apk add --no-cache dos2unix; 
+          elif [ -x "$(command -v apt-get)" ]; then sudo apt-get update && sudo apt-get install -y dos2unix; fi
+
+          # 2. Fix Line Endings (CRLF -> LF) for ALL Dockerfiles
+          find . -type f -name "Dockerfile*" -print0 | xargs -0 dos2unix
+
+          # 3. FORCE REMOVE the '# syntax=' line from ALL Dockerfiles
+          find . -type f -name "Dockerfile*" -exec sed -i '/^# syntax=/d' {} +
+
+          echo "✅ All syntax directives removed and line endings fixed."
+
       - name: Generate Dynamic Configuration
         run: |
           # 1. Get the repo name
