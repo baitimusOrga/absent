@@ -18,9 +18,7 @@
         </p>
       </div>
       
-      <button (click)="logout()" class="px-6 py-2.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-sm font-semibold tracking-wide uppercase">
-        Abmelden
-      </button>
+   
     </header>
 
     <!-- Main Grid -->
@@ -68,7 +66,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <p class="text-slate-500 text-sm">Noch keine Absenzformulare erstellt.</p>
+                <p class="text-slate-500 text-sm">Dieses feature ist noch in Arbeit.</p>
             </div>
         </div>
       </div>
@@ -134,22 +132,6 @@
           <form *ngIf="isEditing" (ngSubmit)="saveProfile()" class="space-y-5">
             <div class="space-y-4">
               
-              <!-- Input Helper -->
-              <ng-template #inputField let-id="id" let-label="label" let-model="model" let-type="type" let-ph="ph">
-                <div>
-                    <label [for]="id" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">{{label}}</label>
-                    <input 
-                        [type]="type" 
-                        [id]="id" 
-                        [(ngModel)]="editForm[model]" 
-                        [name]="model"
-                        class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600"
-                        [placeholder]="ph"
-                    >
-                </div>
-              </ng-template>
-
-              <!-- Basic Info -->
               <div>
                 <label for="fullname" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Vollständiger Name</label>
                 <input type="text" id="fullname" [(ngModel)]="editForm.fullname" name="fullname" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600" placeholder="z.B. Max Mustermann">
@@ -173,7 +155,6 @@
                 <input type="url" id="calendar" [(ngModel)]="editForm.schulnetzCalendarUrl" name="schulnetzCalendarUrl" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600" placeholder="https://...">
               </div>
 
-              <!-- Date of Birth (Moved here) -->
               <div>
                 <label for="dob" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Geburtsdatum</label>
                 <input type="date" id="dob" [(ngModel)]="editForm.dateOfBirth" name="dateOfBirth" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all [color-scheme:dark]">
@@ -222,48 +203,134 @@
     </div>
   </div>
 
-  <!-- PDF Workflow Modal Placeholder -->
-  <div *ngIf="showPdfWorkflow" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- PDF Wizard Modal -->
+  <div *ngIf="showPdfWorkflow" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
     <!-- Backdrop -->
-    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity" (click)="closePdfWorkflow()"></div>
+    <div class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm transition-opacity" (click)="closePdfWorkflow()"></div>
 
-    <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
-      <div class="relative transform overflow-hidden rounded-3xl bg-slate-900 border border-teal-500/30 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-        <div class="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-          <div class="sm:flex sm:items-start">
-            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/10 sm:mx-0 sm:h-10 sm:w-10">
-              <svg class="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-              </svg>
+    <div class="flex min-h-screen items-center justify-center p-4">
+      <div class="relative w-full max-w-lg transform overflow-hidden rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl transition-all">
+        
+        <!-- Wizard Header -->
+        <div class="bg-slate-900/50 p-6 border-b border-slate-800 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-white">Absenz erfassen</h3>
+            
+            <!-- Step Indicators -->
+            <div class="flex items-center gap-2">
+                <span class="wizard-step-indicator" [ngClass]="currentStep >= 1 ? 'wizard-step-active' : 'wizard-step-inactive'">1</span>
+                <div class="w-6 h-0.5" [ngClass]="currentStep >= 2 ? 'bg-emerald-500' : 'bg-slate-800'"></div>
+                <span class="wizard-step-indicator" [ngClass]="currentStep >= 2 ? 'wizard-step-active' : 'wizard-step-inactive'">2</span>
             </div>
-            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-              <h3 class="text-xl font-semibold leading-6 text-white" id="modal-title">PDF Ablauf</h3>
-              <div class="mt-2">
-                <p class="text-sm text-slate-400">
-                  Diese Funktion wird gerade entwickelt. Bald wirst du hier einen mehrstufigen Assistenten sehen, um Lektionen auszuwählen und dein PDF zu erstellen.
-                </p>
-                <div class="mt-4 p-4 rounded-xl bg-slate-800/50 border border-dashed border-slate-700">
-                    <div class="flex items-center gap-3 text-sm text-slate-500">
-                        <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">1</span>
-                        <span>Lektionen laden</span>
-                    </div>
-                    <div class="w-0.5 h-4 bg-slate-700 ml-3 my-1"></div>
-                    <div class="flex items-center gap-3 text-sm text-slate-500">
-                        <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">2</span>
-                        <span>Absenzen wählen</span>
-                    </div>
-                    <div class="w-0.5 h-4 bg-slate-700 ml-3 my-1"></div>
-                    <div class="flex items-center gap-3 text-sm text-slate-500">
-                        <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">3</span>
-                        <span>PDF herunterladen</span>
-                    </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-        <div class="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-          <button type="button" (click)="closePdfWorkflow()" class="inline-flex w-full justify-center rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 sm:ml-3 sm:w-auto">Verstanden</button>
+
+        <!-- Wizard Content -->
+        <div class="p-6 md:p-8">
+            
+            <!-- STEP 1: DATE -->
+            <div *ngIf="currentStep === 1" class="space-y-6 animate-fade-in">
+                <div class="text-center mb-6">
+                    <div class="mx-auto w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3 text-emerald-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-medium text-white">Wann fehlst du?</h4>
+                    <p class="text-slate-400 text-sm">Wähle den Tag deiner Absenz.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Datum</label>
+                    <input 
+                        type="date" 
+                        [(ngModel)]="pdfData.date" 
+                        class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none text-lg [color-scheme:dark]"
+                    >
+                </div>
+            </div>
+
+            <!-- STEP 2: DETAILS -->
+            <div *ngIf="currentStep === 2" class="space-y-6 animate-fade-in">
+                 <div class="text-center mb-4">
+                    <h4 class="text-lg font-medium text-white">Grund & Typ</h4>
+                    <p class="text-slate-400 text-sm">Warum bist du abwesend?</p>
+                </div>
+
+                <!-- Type Selection -->
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="radio-card-label">
+                        <input type="radio" name="type" [(ngModel)]="pdfData.type" value="krankheit" class="radio-card-input">
+                        <div class="radio-card-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 radio-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span class="font-medium text-slate-200">Krankheit</span>
+                        </div>
+                    </label>
+                    
+                    <label class="radio-card-label">
+                        <input type="radio" name="type" [(ngModel)]="pdfData.type" value="ferien" class="radio-card-input">
+                        <div class="radio-card-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 radio-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            <span class="font-medium text-slate-200">Urlaub / Joker</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Reason Input -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Begründung</label>
+                    <textarea 
+                        rows="3"
+                        [(ngModel)]="pdfData.reason"
+                        class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none resize-none"
+                        placeholder="z.B. Grippe, Arzttermin, familiärer Anlass..."
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+             <div *ngIf="saveMessage" class="mt-4 px-4 py-3 rounded-xl text-sm font-medium border bg-red-500/10 border-red-500/30 text-red-400">
+                {{ saveMessage }}
+            </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="bg-slate-900/50 px-6 py-4 border-t border-slate-800 flex justify-between items-center">
+            
+            <!-- Back / Cancel Button -->
+            <button 
+                (click)="currentStep === 1 ? closePdfWorkflow() : prevStep()"
+                class="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors font-medium text-sm"
+            >
+                {{ currentStep === 1 ? 'Abbrechen' : 'Zurück' }}
+            </button>
+
+            <!-- Next / Generate Button -->
+            <button 
+                *ngIf="currentStep === 1"
+                (click)="nextStep()"
+                [disabled]="!pdfData.date"
+                class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20"
+            >
+                Weiter
+            </button>
+
+             <button 
+                *ngIf="currentStep === 2"
+                (click)="generatePdf()"
+                [disabled]="isSaving || !pdfData.reason"
+                class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-900 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+            >
+                <span *ngIf="isSaving">Generiere...</span>
+                <span *ngIf="!isSaving">PDF Erstellen</span>
+                <svg *ngIf="!isSaving" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+            </button>
+
         </div>
       </div>
     </div>
