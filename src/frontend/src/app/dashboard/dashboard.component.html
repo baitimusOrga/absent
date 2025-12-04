@@ -1,157 +1,271 @@
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <h1>Welcome to Your Dashboard</h1>
-    <p *ngIf="user">Hello, {{ user.name || user.email }}!</p>
+<div class="dashboard-wrapper text-slate-50 font-sans selection:bg-emerald-500/30">
+  <div class="gradient-bg"></div>
+  <div class="grain-overlay"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <!-- Header Section -->
+    <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div>
+        <span class="inline-block px-3 py-1 mb-3 text-xs font-bold tracking-widest text-emerald-300 uppercase bg-slate-900/60 border border-teal-500/30 rounded-full backdrop-blur-sm">
+          Student Dashboard
+        </span>
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">
+          Welcome back, <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">{{ user?.name || 'Student' }}</span>
+        </h1>
+        <p class="text-slate-400 text-lg max-w-2xl">
+          Manage your profile and generate absence forms in seconds.
+        </p>
+      </div>
+      
+      <button (click)="logout()" class="px-6 py-2.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-sm font-semibold tracking-wide uppercase">
+        Sign Out
+      </button>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Primary Actions (PDF Workflow) -->
+      <div class="lg:col-span-2 space-y-8">
+        
+        <!-- PDF Generation Trigger Card -->
+        <div class="relative group overflow-hidden rounded-3xl bg-slate-900/60 border border-teal-500/30 p-8 md:p-10 hover:border-emerald-500/50 transition-all duration-300 shadow-2xl shadow-emerald-900/10">
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <div class="relative z-10 flex flex-col items-start gap-6">
+            <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2">Generate Absence Form</h2>
+              <p class="text-slate-400 leading-relaxed max-w-lg">
+                Start a new workflow to draft your official PDF. We'll pull your lessons from Schulnetz and auto-fill your details.
+              </p>
+            </div>
+
+            <button (click)="openPdfWorkflow()" class="mt-2 inline-flex items-center justify-center px-8 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-900 font-bold text-sm tracking-widest uppercase hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1 transition-all duration-200">
+              Start New Request
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 -mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Activity Placeholder (Visual filler for now) -->
+        <div class="rounded-3xl bg-slate-900/40 border border-slate-800 p-8">
+            <h3 class="text-lg font-semibold text-slate-200 mb-6 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                Recent History
+            </h3>
+            <div class="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
+                <div class="p-3 bg-slate-800 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-slate-500 text-sm">No absence forms generated yet.</p>
+            </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Settings & Profile -->
+      <div class="space-y-8">
+        
+        <!-- Profile Card -->
+        <div class="rounded-3xl bg-slate-900/80 border border-slate-700/50 p-6 md:p-8 backdrop-blur-md sticky top-6">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-xl font-bold text-white">Your Settings</h2>
+            <button 
+              *ngIf="!isEditing" 
+              (click)="startEditing()" 
+              class="text-xs font-bold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 transition-colors border border-emerald-500/30 hover:border-emerald-400 px-3 py-1.5 rounded-full bg-emerald-500/10"
+            >
+              Edit Details
+            </button>
+          </div>
+
+          <!-- Read-only View -->
+          <div *ngIf="!isEditing" class="space-y-6">
+            <!-- Account Info Section -->
+            <div class="space-y-4">
+               <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Account</h3>
+               <div class="group">
+                 <label class="block text-xs text-slate-400 mb-1">Email</label>
+                 <div class="text-slate-200 font-medium break-all">{{ user?.email }}</div>
+               </div>
+               <div class="group">
+                 <label class="block text-xs text-slate-400 mb-1">User ID</label>
+                 <div class="text-slate-200 font-mono text-xs bg-slate-950/50 p-2 rounded border border-slate-800 truncate">{{ user?.id }}</div>
+               </div>
+            </div>
+
+            <div class="h-px bg-slate-800 my-4"></div>
+
+            <!-- Profile Info Section -->
+             <div class="space-y-5">
+               <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Professional Info</h3>
+               
+               <ng-container *ngFor="let field of [
+                 { label: 'Full Name', value: user?.fullname },
+                 { label: 'School', value: user?.school },
+                 { label: 'Berufsbildner', value: user?.berufsbildner },
+                 { label: 'Phone', value: user?.berufsbildnerPhoneNumber },
+                 { label: 'Calendar', value: user?.schulnetzCalendarUrl, isLink: true }
+               ]">
+                 <div>
+                   <label class="block text-xs text-slate-400 mb-1">{{ field.label }}</label>
+                   <div *ngIf="!field.isLink" class="text-slate-200 font-medium">
+                     {{ field.value || 'Not set' }}
+                   </div>
+                   <div *ngIf="field.isLink" class="text-emerald-400 text-sm truncate">
+                     {{ field.value ? 'Link Configured' : 'Not set' }}
+                   </div>
+                 </div>
+               </ng-container>
+             </div>
+          </div>
+
+          <!-- Edit Form -->
+          <form *ngIf="isEditing" (ngSubmit)="saveProfile()" class="space-y-5">
+            <div class="space-y-4">
+              
+              <!-- Input Helper -->
+              <ng-template #inputField let-id="id" let-label="label" let-model="model" let-type="type" let-ph="ph">
+                <div>
+                    <label [for]="id" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">{{label}}</label>
+                    <input 
+                        [type]="type" 
+                        [id]="id" 
+                        [(ngModel)]="editForm[model]" 
+                        [name]="model"
+                        class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                        [placeholder]="ph"
+                    >
+                </div>
+              </ng-template>
+
+              <!-- Basic Info -->
+              <div>
+                <label for="fullname" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Full Name</label>
+                <input type="text" id="fullname" [(ngModel)]="editForm.fullname" name="fullname" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600" placeholder="e.g. John Doe">
+              </div>
+
+              <div>
+                <label for="school" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">School</label>
+                <div class="relative">
+                  <select id="school" [(ngModel)]="editForm.school" name="school" class="w-full appearance-none bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all">
+                    <option value="" class="bg-slate-900">Select School</option>
+                    <option *ngFor="let school of schools" [value]="school" class="bg-slate-900">{{ school }}</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label for="calendar" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Schulnetz URL</label>
+                <input type="url" id="calendar" [(ngModel)]="editForm.schulnetzCalendarUrl" name="schulnetzCalendarUrl" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600" placeholder="https://...">
+              </div>
+              
+              <div class="pt-2 border-t border-slate-800 mt-2">
+                  <p class="text-xs text-slate-500 mb-3">Berufsbildner Details</p>
+                  <div class="space-y-4">
+                      <input type="text" [(ngModel)]="editForm.berufsbildner" name="berufsbildner" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="Name">
+                      <input type="email" [(ngModel)]="editForm.berufsbildnerEmail" name="berufsbildnerEmail" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="Email">
+                      <input type="tel" [(ngModel)]="editForm.berufsbildnerPhoneNumber" name="berufsbildnerPhoneNumber" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="Phone">
+                  </div>
+              </div>
+
+              <div>
+                <label for="dob" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Date of Birth</label>
+                <input type="date" id="dob" [(ngModel)]="editForm.dateOfBirth" name="dateOfBirth" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all [color-scheme:dark]">
+              </div>
+
+            </div>
+
+            <!-- Feedback Message -->
+            <div *ngIf="saveMessage" class="px-4 py-3 rounded-xl text-sm font-medium border" 
+                [ngClass]="saveMessage.includes('success') 
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                    : 'bg-red-500/10 border-red-500/30 text-red-400'">
+                {{ saveMessage }}
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 pt-2">
+              <button 
+                type="submit" 
+                [disabled]="isSaving"
+                class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ isSaving ? 'Saving...' : 'Save Changes' }}
+              </button>
+              <button 
+                type="button" 
+                (click)="cancelEditing()"
+                [disabled]="isSaving"
+                class="px-4 py-2.5 rounded-xl border border-slate-600 text-slate-300 hover:bg-slate-800 font-medium transition-colors">
+                Cancel
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <div class="dashboard-content">
-    <div class="card">
-      <h2>Your Account</h2>
-      <div class="user-info" *ngIf="user">
-        <p><strong>Name:</strong> {{ user.name || 'Not set' }}</p>
-        <p><strong>Full Name:</strong> {{ user.fullname || 'Not set' }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>User ID:</strong> {{ user.id }}</p>
-      </div>
-    </div>
+  <!-- PDF Workflow Modal Placeholder -->
+  <div *ngIf="showPdfWorkflow" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity" (click)="closePdfWorkflow()"></div>
 
-    <div class="card profile-card">
-      <div class="card-header">
-        <h2>Professional Information</h2>
-        <button *ngIf="!isEditing" class="edit-btn" (click)="startEditing()">Edit</button>
-      </div>
-
-      <div *ngIf="!isEditing" class="profile-info">
-        <div class="info-row">
-          <strong>Full Name:</strong>
-          <span>{{ user?.fullname || 'Not set' }}</span>
+    <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+      <div class="relative transform overflow-hidden rounded-3xl bg-slate-900 border border-teal-500/30 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+        <div class="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/10 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+              <h3 class="text-xl font-semibold leading-6 text-white" id="modal-title">PDF Workflow</h3>
+              <div class="mt-2">
+                <p class="text-sm text-slate-400">
+                  This feature is currently under construction. Soon you will see a multi-step wizard here to select lessons, confirm reasons, and generate your PDF.
+                </p>
+                <div class="mt-4 p-4 rounded-xl bg-slate-800/50 border border-dashed border-slate-700">
+                    <div class="flex items-center gap-3 text-sm text-slate-500">
+                        <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">1</span>
+                        <span>Fetch Lessons</span>
+                    </div>
+                    <div class="w-0.5 h-4 bg-slate-700 ml-3 my-1"></div>
+                    <div class="flex items-center gap-3 text-sm text-slate-500">
+                        <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">2</span>
+                        <span>Select Absences</span>
+                    </div>
+                    <div class="w-0.5 h-4 bg-slate-700 ml-3 my-1"></div>
+                    <div class="flex items-center gap-3 text-sm text-slate-500">
+                        <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">3</span>
+                        <span>Download PDF</span>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="info-row">
-          <strong>School:</strong>
-          <span>{{ user?.school || 'Not set' }}</span>
-        </div>
-        <div class="info-row">
-          <strong>Schulnetz Calendar URL:</strong>
-          <span>{{ user?.schulnetzCalendarUrl || 'Not set' }}</span>
-        </div>
-        <div class="info-row">
-          <strong>Berufsbildner:</strong>
-          <span>{{ user?.berufsbildner || 'Not set' }}</span>
-        </div>
-        <div class="info-row">
-          <strong>Berufsbildner Email:</strong>
-          <span>{{ user?.berufsbildnerEmail || 'Not set' }}</span>
-        </div>
-        <div class="info-row">
-          <strong>Berufsbildner Phone:</strong>
-          <span>{{ user?.berufsbildnerPhoneNumber || 'Not set' }}</span>
-        </div>
-        <div class="info-row">
-          <strong>Date of Birth:</strong>
-          <span>{{ user?.dateOfBirth ? (user?.dateOfBirth | date:'yyyy-MM-dd') : 'Not set' }}</span>
+        <div class="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+          <button type="button" (click)="closePdfWorkflow()" class="inline-flex w-full justify-center rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 sm:ml-3 sm:w-auto">Got it</button>
         </div>
       </div>
-
-      <form *ngIf="isEditing" class="edit-form" (ngSubmit)="saveProfile()">
-        <div class="form-group">
-          <label for="fullname">Full Name</label>
-          <input 
-            type="text" 
-            id="fullname" 
-            [(ngModel)]="editForm.fullname" 
-            name="fullname"
-            class="form-control"
-            placeholder="Full legal name"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="school">School</label>
-          <select id="school" [(ngModel)]="editForm.school" name="school" class="form-control">
-            <option value="">Select a school</option>
-            <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="calendarUrl">Schulnetz Calendar URL</label>
-          <input 
-            type="url" 
-            id="calendarUrl" 
-            [(ngModel)]="editForm.schulnetzCalendarUrl" 
-            name="schulnetzCalendarUrl"
-            class="form-control"
-            placeholder="https://..."
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="berufsbildner">Berufsbildner Name</label>
-          <input 
-            type="text" 
-            id="berufsbildner" 
-            [(ngModel)]="editForm.berufsbildner" 
-            name="berufsbildner"
-            class="form-control"
-            placeholder="Full name"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="berufsbildnerEmail">Berufsbildner Email</label>
-          <input 
-            type="email" 
-            id="berufsbildnerEmail" 
-            [(ngModel)]="editForm.berufsbildnerEmail" 
-            name="berufsbildnerEmail"
-            class="form-control"
-            placeholder="email@example.com"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="berufsbildnerPhone">Berufsbildner Phone Number</label>
-          <input 
-            type="tel" 
-            id="berufsbildnerPhone" 
-            [(ngModel)]="editForm.berufsbildnerPhoneNumber" 
-            name="berufsbildnerPhoneNumber"
-            class="form-control"
-            placeholder="+41..."
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="dateOfBirth">Date of Birth</label>
-          <input 
-            type="date" 
-            id="dateOfBirth" 
-            [(ngModel)]="editForm.dateOfBirth" 
-            name="dateOfBirth"
-            class="form-control"
-          />
-        </div>
-
-        <div *ngIf="saveMessage" class="save-message" [class.success]="saveMessage.includes('success')">
-          {{ saveMessage }}
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="save-btn" [disabled]="isSaving" [class.saving]="isSaving">
-            <span *ngIf="!isSaving">Save</span>
-            <span *ngIf="isSaving">Saving...</span>
-          </button>
-          <button type="button" class="cancel-btn" (click)="cancelEditing()" [disabled]="isSaving">
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <div class="card">
-      <h2>Quick Actions</h2>
-      <p>This is your protected dashboard. You can only see this when logged in.</p>
-      <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
   </div>
+
 </div>

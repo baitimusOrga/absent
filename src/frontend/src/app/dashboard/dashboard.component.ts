@@ -4,6 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, User } from '../services/auth.service';
 
+interface EditFormState {
+    schulnetzCalendarUrl: string;
+    fullname: string;
+    school: string;
+    berufsbildner: string;
+    berufsbildnerEmail: string;
+    berufsbildnerPhoneNumber: string;
+    dateOfBirth: string;
+    [key: string]: string; // Index signature for template access
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -16,9 +27,10 @@ export class DashboardComponent implements OnInit {
   isEditing = false;
   isSaving = false;
   saveMessage = '';
+  showPdfWorkflow = false;
   
   // Edit form fields
-  editForm = {
+  editForm: EditFormState = {
     schulnetzCalendarUrl: '',
     fullname: '',
     school: '',
@@ -50,6 +62,7 @@ export class DashboardComponent implements OnInit {
       let dateOfBirth = '';
       if (this.user.dateOfBirth) {
         const date = new Date(this.user.dateOfBirth);
+        // Handle timezone offset simply for display
         dateOfBirth = date.toISOString().split('T')[0];
       }
       
@@ -83,10 +96,17 @@ export class DashboardComponent implements OnInit {
     
     try {
       const client = this.authService.getClient();
+      // Only send fields that match the User interface expected by backend
+      // Using partial update logic typically found in auth services
       await client.updateUser(this.editForm);
       
       this.saveMessage = 'Profile saved successfully!';
-      this.isEditing = false;
+      
+      // Short delay before closing to show success message
+      setTimeout(() => {
+          this.isEditing = false;
+          this.saveMessage = '';
+      }, 1000);
       
       // Refresh session to get updated user data
       this.authService.refreshSession().catch(err => console.error('Session refresh error:', err));
@@ -96,7 +116,6 @@ export class DashboardComponent implements OnInit {
       console.error('Save error:', error);
     }
     
-    // Always reset saving state
     this.isSaving = false;
   }
 
@@ -107,5 +126,14 @@ export class DashboardComponent implements OnInit {
     } catch (error) {
       console.error('Logout failed:', error);
     }
+  }
+
+  // Workflow Handlers
+  openPdfWorkflow(): void {
+    this.showPdfWorkflow = true;
+  }
+
+  closePdfWorkflow(): void {
+    this.showPdfWorkflow = false;
   }
 }
