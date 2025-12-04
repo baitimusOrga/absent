@@ -15,6 +15,12 @@ interface EditFormState {
     [key: string]: string;
 }
 
+interface PdfRequestData {
+    date: string;
+    type: 'krankheit' | 'ferien';
+    reason: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -28,6 +34,14 @@ export class DashboardComponent implements OnInit {
   isSaving = false;
   saveMessage = '';
   showPdfWorkflow = false;
+  
+  // Wizard State
+  currentStep = 1;
+  pdfData: PdfRequestData = {
+      date: '',
+      type: 'krankheit',
+      reason: ''
+  };
   
   editForm: EditFormState = {
     schulnetzCalendarUrl: '',
@@ -44,7 +58,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef // Injected to force UI updates
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -98,40 +112,109 @@ export class DashboardComponent implements OnInit {
       
       this.saveMessage = 'Profil erfolgreich gespeichert!';
       
-      // Refresh session quietly
       this.authService.refreshSession().catch(err => console.error('Session refresh error:', err));
       
-      // Close form after delay
       setTimeout(() => {
           this.isEditing = false;
           this.saveMessage = '';
-          this.cdr.detectChanges(); // Update view when closing form
+          this.cdr.detectChanges();
       }, 1000);
       
     } catch (error) {
       this.saveMessage = 'Fehler beim Speichern des Profils';
       console.error('Save error:', error);
     } finally {
-      // FORCE reset of saving state and FORCE UI update
       this.isSaving = false;
       this.cdr.detectChanges();
     }
   }
 
-  async logout(): Promise<void> {
-    try {
-      await this.authService.logout();
-      this.router.navigate(['/login']);
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  }
+
+
+  // --- PDF Workflow Logic ---
 
   openPdfWorkflow(): void {
     this.showPdfWorkflow = true;
+    this.currentStep = 1;
+    this.saveMessage = '';
+    // Reset form defaults
+    this.pdfData = {
+        date: new Date().toISOString().split('T')[0], // Default to today
+        type: 'krankheit',
+        reason: ''
+    };
   }
 
   closePdfWorkflow(): void {
     this.showPdfWorkflow = false;
+  }
+
+  nextStep(): void {
+      if (this.currentStep < 2) {
+          this.currentStep++;
+      }
+  }
+
+  prevStep(): void {
+      if (this.currentStep > 1) {
+          this.currentStep--;
+      }
+  }
+
+  async generatePdf(): Promise<void> {
+      this.isSaving = true;
+      this.saveMessage = '';
+
+      try {
+        // Map internal types to backend expected values
+        const formType = this.pdfData.type === 'krankheit' ? 'Entschuldigung' : 'Urlaubsgesuch';
+
+        // Construct the payload matching pdf-test.component.ts structure
+        const payload = {
+            datumDerAbsenz: this.pdfData.date,
+            begruendung: this.pdfData.reason, // Backend expects 'begruendung'
+            formType: formType,
+            school: this.user?.school,
+            missedLessons: [], // Empty initially, handled by backend calendar fetch
+            useShortNames: false
+        };
+
+        // Use authenticatedFetch to ensure session cookies/headers are sent
+        const response = await this.authService.authenticatedFetch('/pdf/fill', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || errorData.message || 'PDF Generation failed');
+        }
+
+        // Create a blob from the response
+        const blob = await response.blob();
+        
+        // Create a temporary link to download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Try to get filename from headers, fallback to default
+        a.download = `${formType}_${this.pdfData.date}.pdf`; 
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        this.closePdfWorkflow();
+
+      } catch (error) {
+          console.error('PDF Generation Error:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
+          this.saveMessage = `Fehler: ${errorMessage}`;
+      } finally {
+          this.isSaving = false;
+          this.cdr.detectChanges();
+      }
   }
 }

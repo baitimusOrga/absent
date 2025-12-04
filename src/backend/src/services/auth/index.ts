@@ -78,8 +78,13 @@ export const auth = betterAuth({
         type: 'date',
         required: false,
       },
+      savePdfHistory: {
+        type: 'boolean',
+        required: false,
+        default: true,
     },
   },
+},
 });
 
 logger.info('Better Auth initialized successfully');

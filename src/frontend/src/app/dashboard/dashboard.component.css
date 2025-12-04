@@ -31,6 +31,48 @@
   pointer-events: none;
 }
 
+/* Wizard Specific Styles */
+.wizard-step-indicator {
+  @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border transition-all duration-300;
+}
+
+.wizard-step-active {
+  @apply bg-emerald-500 text-slate-900 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)];
+}
+
+.wizard-step-inactive {
+  @apply bg-slate-800 text-slate-500 border-slate-700;
+}
+
+.wizard-step-completed {
+  @apply bg-emerald-500/20 text-emerald-400 border-emerald-500/50;
+}
+
+/* Radio Card Selection */
+.radio-card-label {
+  @apply cursor-pointer relative block;
+}
+
+.radio-card-input {
+  @apply sr-only;
+}
+
+.radio-card-content {
+  @apply p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-all duration-200 flex flex-col items-center gap-3 text-center h-full;
+}
+
+.radio-card-input:checked + .radio-card-content {
+  @apply border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.1)];
+}
+
+.radio-card-input:checked + .radio-card-content .radio-icon {
+  @apply text-emerald-400 scale-110;
+}
+
+.radio-icon {
+  @apply text-slate-400 transition-transform duration-300;
+}
+
 /* Custom Scrollbar for the dashboard if needed */
 ::-webkit-scrollbar {
   width: 8px;
