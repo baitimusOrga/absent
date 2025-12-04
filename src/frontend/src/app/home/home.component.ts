@@ -54,16 +54,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Start initial animation after a delay
     setTimeout(() => this.startPdfAnimation(), 1500);
     
-    // Show shoutout popup after a delay (only once per session)
-    const hasSeenShoutout = sessionStorage.getItem('hasSeenShoutout');
-    if (!hasSeenShoutout) {
-      setTimeout(() => {
-        this.showShoutoutPopup = true;
-        console.log('Shoutout popup shown');
-      }, 3000);
-    } else {
-      console.log('Shoutout already seen this session');
-    }
+    // Show shoutout popup after a delay
+    setTimeout(() => {
+      this.showShoutoutPopup = true;
+    }, 1500);
   }
 
   ngOnDestroy() {
@@ -119,6 +113,5 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   closeShoutoutPopup() {
     this.showShoutoutPopup = false;
-    sessionStorage.setItem('hasSeenShoutout', 'true');
   }
 }
