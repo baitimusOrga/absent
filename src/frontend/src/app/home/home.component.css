@@ -108,6 +108,10 @@
 	}
 }
 
+.animate-fade-in-up {
+	animation: fadeInUp 0.3s ease-out;
+}
+
 .badge {
 	display: inline-flex;
 	align-items: center;
