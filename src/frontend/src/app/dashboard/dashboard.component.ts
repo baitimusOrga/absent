@@ -19,6 +19,7 @@ interface PdfRequestData {
     date: string;
     type: 'krankheit' | 'ferien';
     reason: string;
+    useShortNames: boolean;
 }
 
 @Component({
@@ -42,7 +43,8 @@ export class DashboardComponent implements OnInit {
   pdfData: PdfRequestData = {
       date: '',
       type: 'krankheit',
-      reason: ''
+      reason: '',
+      useShortNames: false
   };
   showCalendarHelp = false;
   toggleCalendarHelp(): void {
@@ -173,7 +175,8 @@ export class DashboardComponent implements OnInit {
     this.pdfData = {
         date: new Date().toISOString().split('T')[0],
         type: 'krankheit',
-        reason: ''
+        reason: '',
+        useShortNames: false
     };
   }
 
@@ -223,7 +226,7 @@ export class DashboardComponent implements OnInit {
             formType: formType,
             school: this.user?.school,
             missedLessons: [],
-            useShortNames: false
+            useShortNames: this.pdfData.useShortNames
         };
 
         const response = await this.authService.authenticatedFetch('/pdf/fill', {
