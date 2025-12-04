@@ -21,6 +21,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   private animationTimeout: any;
   private stampTimeout: any;
 
+  // Shoutout Popup
+  showShoutoutPopup = false;
+
   // Features
   highlightedFeature: number | null = null;
   autoFillFields = [
@@ -50,6 +53,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Start initial animation after a delay
     setTimeout(() => this.startPdfAnimation(), 1500);
+    
+    // Show shoutout popup after a delay (only once per session)
+    const hasSeenShoutout = sessionStorage.getItem('hasSeenShoutout');
+    if (!hasSeenShoutout) {
+      setTimeout(() => {
+        this.showShoutoutPopup = true;
+        console.log('Shoutout popup shown');
+      }, 3000);
+    } else {
+      console.log('Shoutout already seen this session');
+    }
   }
 
   ngOnDestroy() {
@@ -101,5 +115,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   setActiveStep(index: number) {
     this.activeStep = index;
+  }
+
+  closeShoutoutPopup() {
+    this.showShoutoutPopup = false;
+    sessionStorage.setItem('hasSeenShoutout', 'true');
   }
 }
