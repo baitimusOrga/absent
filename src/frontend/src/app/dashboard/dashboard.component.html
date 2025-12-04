@@ -8,18 +8,18 @@
     <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
       <div>
         <span class="inline-block px-3 py-1 mb-3 text-xs font-bold tracking-widest text-emerald-300 uppercase bg-slate-900/60 border border-teal-500/30 rounded-full backdrop-blur-sm">
-          Student Dashboard
+          Schüler Dashboard
         </span>
         <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">
-          Welcome back, <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">{{ user?.name || 'Student' }}</span>
+          Willkommen zurück, <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">{{ user?.name || 'Schüler' }}</span>
         </h1>
         <p class="text-slate-400 text-lg max-w-2xl">
-          Manage your profile and generate absence forms in seconds.
+          Verwalte dein Profil und erstelle Absenzformulare in Sekunden.
         </p>
       </div>
       
       <button (click)="logout()" class="px-6 py-2.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-sm font-semibold tracking-wide uppercase">
-        Sign Out
+        Abmelden
       </button>
     </header>
 
@@ -41,14 +41,14 @@
             </div>
             
             <div>
-              <h2 class="text-2xl font-bold text-white mb-2">Generate Absence Form</h2>
+              <h2 class="text-2xl font-bold text-white mb-2">Absenzformular erstellen</h2>
               <p class="text-slate-400 leading-relaxed max-w-lg">
-                Start a new workflow to draft your official PDF. We'll pull your lessons from Schulnetz and auto-fill your details.
+                Starte einen neuen Ablauf, um dein offizielles PDF zu erstellen. Wir rufen deine Lektionen aus Schulnetz ab und füllen deine Details automatisch aus.
               </p>
             </div>
 
             <button (click)="openPdfWorkflow()" class="mt-2 inline-flex items-center justify-center px-8 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-900 font-bold text-sm tracking-widest uppercase hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1 transition-all duration-200">
-              Start New Request
+              Neue Anfrage starten
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 -mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
@@ -56,11 +56,11 @@
           </div>
         </div>
 
-        <!-- Recent Activity Placeholder (Visual filler for now) -->
+        <!-- Recent Activity Placeholder -->
         <div class="rounded-3xl bg-slate-900/40 border border-slate-800 p-8">
             <h3 class="text-lg font-semibold text-slate-200 mb-6 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-slate-500"></span>
-                Recent History
+                Verlauf
             </h3>
             <div class="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
                 <div class="p-3 bg-slate-800 rounded-full mb-3">
@@ -68,7 +68,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <p class="text-slate-500 text-sm">No absence forms generated yet.</p>
+                <p class="text-slate-500 text-sm">Noch keine Absenzformulare erstellt.</p>
             </div>
         </div>
       </div>
@@ -79,13 +79,13 @@
         <!-- Profile Card -->
         <div class="rounded-3xl bg-slate-900/80 border border-slate-700/50 p-6 md:p-8 backdrop-blur-md sticky top-6">
           <div class="flex items-center justify-between mb-8">
-            <h2 class="text-xl font-bold text-white">Your Settings</h2>
+            <h2 class="text-xl font-bold text-white">Deine Einstellungen</h2>
             <button 
               *ngIf="!isEditing" 
               (click)="startEditing()" 
               class="text-xs font-bold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 transition-colors border border-emerald-500/30 hover:border-emerald-400 px-3 py-1.5 rounded-full bg-emerald-500/10"
             >
-              Edit Details
+              Bearbeiten
             </button>
           </div>
 
@@ -93,13 +93,13 @@
           <div *ngIf="!isEditing" class="space-y-6">
             <!-- Account Info Section -->
             <div class="space-y-4">
-               <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Account</h3>
+               <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Konto</h3>
                <div class="group">
-                 <label class="block text-xs text-slate-400 mb-1">Email</label>
+                 <label class="block text-xs text-slate-400 mb-1">E-Mail</label>
                  <div class="text-slate-200 font-medium break-all">{{ user?.email }}</div>
                </div>
                <div class="group">
-                 <label class="block text-xs text-slate-400 mb-1">User ID</label>
+                 <label class="block text-xs text-slate-400 mb-1">Benutzer ID</label>
                  <div class="text-slate-200 font-mono text-xs bg-slate-950/50 p-2 rounded border border-slate-800 truncate">{{ user?.id }}</div>
                </div>
             </div>
@@ -108,22 +108,22 @@
 
             <!-- Profile Info Section -->
              <div class="space-y-5">
-               <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Professional Info</h3>
+               <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Berufliche Infos</h3>
                
                <ng-container *ngFor="let field of [
-                 { label: 'Full Name', value: user?.fullname },
-                 { label: 'School', value: user?.school },
+                 { label: 'Vollständiger Name', value: user?.fullname },
+                 { label: 'Schule', value: user?.school },
                  { label: 'Berufsbildner', value: user?.berufsbildner },
-                 { label: 'Phone', value: user?.berufsbildnerPhoneNumber },
-                 { label: 'Calendar', value: user?.schulnetzCalendarUrl, isLink: true }
+                 { label: 'Telefon', value: user?.berufsbildnerPhoneNumber },
+                 { label: 'Kalender', value: user?.schulnetzCalendarUrl, isLink: true }
                ]">
                  <div>
                    <label class="block text-xs text-slate-400 mb-1">{{ field.label }}</label>
                    <div *ngIf="!field.isLink" class="text-slate-200 font-medium">
-                     {{ field.value || 'Not set' }}
+                     {{ field.value || 'Nicht gesetzt' }}
                    </div>
                    <div *ngIf="field.isLink" class="text-emerald-400 text-sm truncate">
-                     {{ field.value ? 'Link Configured' : 'Not set' }}
+                     {{ field.value ? 'Link konfiguriert' : 'Nicht gesetzt' }}
                    </div>
                  </div>
                </ng-container>
@@ -151,15 +151,15 @@
 
               <!-- Basic Info -->
               <div>
-                <label for="fullname" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Full Name</label>
-                <input type="text" id="fullname" [(ngModel)]="editForm.fullname" name="fullname" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600" placeholder="e.g. John Doe">
+                <label for="fullname" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Vollständiger Name</label>
+                <input type="text" id="fullname" [(ngModel)]="editForm.fullname" name="fullname" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600" placeholder="z.B. Max Mustermann">
               </div>
 
               <div>
-                <label for="school" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">School</label>
+                <label for="school" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Schule</label>
                 <div class="relative">
                   <select id="school" [(ngModel)]="editForm.school" name="school" class="w-full appearance-none bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all">
-                    <option value="" class="bg-slate-900">Select School</option>
+                    <option value="" class="bg-slate-900">Schule wählen</option>
                     <option *ngFor="let school of schools" [value]="school" class="bg-slate-900">{{ school }}</option>
                   </select>
                   <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
@@ -172,26 +172,27 @@
                 <label for="calendar" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Schulnetz URL</label>
                 <input type="url" id="calendar" [(ngModel)]="editForm.schulnetzCalendarUrl" name="schulnetzCalendarUrl" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-600" placeholder="https://...">
               </div>
+
+              <!-- Date of Birth (Moved here) -->
+              <div>
+                <label for="dob" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Geburtsdatum</label>
+                <input type="date" id="dob" [(ngModel)]="editForm.dateOfBirth" name="dateOfBirth" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all [color-scheme:dark]">
+              </div>
               
               <div class="pt-2 border-t border-slate-800 mt-2">
                   <p class="text-xs text-slate-500 mb-3">Berufsbildner Details</p>
                   <div class="space-y-4">
                       <input type="text" [(ngModel)]="editForm.berufsbildner" name="berufsbildner" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="Name">
-                      <input type="email" [(ngModel)]="editForm.berufsbildnerEmail" name="berufsbildnerEmail" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="Email">
-                      <input type="tel" [(ngModel)]="editForm.berufsbildnerPhoneNumber" name="berufsbildnerPhoneNumber" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="Phone">
+                      <input type="email" [(ngModel)]="editForm.berufsbildnerEmail" name="berufsbildnerEmail" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="E-Mail">
+                      <input type="tel" [(ngModel)]="editForm.berufsbildnerPhoneNumber" name="berufsbildnerPhoneNumber" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none" placeholder="Telefon">
                   </div>
-              </div>
-
-              <div>
-                <label for="dob" class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">Date of Birth</label>
-                <input type="date" id="dob" [(ngModel)]="editForm.dateOfBirth" name="dateOfBirth" class="w-full bg-slate-950/50 border border-slate-700 text-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all [color-scheme:dark]">
               </div>
 
             </div>
 
             <!-- Feedback Message -->
             <div *ngIf="saveMessage" class="px-4 py-3 rounded-xl text-sm font-medium border" 
-                [ngClass]="saveMessage.includes('success') 
+                [ngClass]="saveMessage.includes('erfolgreich') 
                     ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
                     : 'bg-red-500/10 border-red-500/30 text-red-400'">
                 {{ saveMessage }}
@@ -203,14 +204,14 @@
                 type="submit" 
                 [disabled]="isSaving"
                 class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                {{ isSaving ? 'Speichert...' : 'Speichern' }}
               </button>
               <button 
                 type="button" 
                 (click)="cancelEditing()"
                 [disabled]="isSaving"
                 class="px-4 py-2.5 rounded-xl border border-slate-600 text-slate-300 hover:bg-slate-800 font-medium transition-colors">
-                Cancel
+                Abbrechen
               </button>
             </div>
           </form>
@@ -236,25 +237,25 @@
               </svg>
             </div>
             <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-              <h3 class="text-xl font-semibold leading-6 text-white" id="modal-title">PDF Workflow</h3>
+              <h3 class="text-xl font-semibold leading-6 text-white" id="modal-title">PDF Ablauf</h3>
               <div class="mt-2">
                 <p class="text-sm text-slate-400">
-                  This feature is currently under construction. Soon you will see a multi-step wizard here to select lessons, confirm reasons, and generate your PDF.
+                  Diese Funktion wird gerade entwickelt. Bald wirst du hier einen mehrstufigen Assistenten sehen, um Lektionen auszuwählen und dein PDF zu erstellen.
                 </p>
                 <div class="mt-4 p-4 rounded-xl bg-slate-800/50 border border-dashed border-slate-700">
                     <div class="flex items-center gap-3 text-sm text-slate-500">
                         <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">1</span>
-                        <span>Fetch Lessons</span>
+                        <span>Lektionen laden</span>
                     </div>
                     <div class="w-0.5 h-4 bg-slate-700 ml-3 my-1"></div>
                     <div class="flex items-center gap-3 text-sm text-slate-500">
                         <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">2</span>
-                        <span>Select Absences</span>
+                        <span>Absenzen wählen</span>
                     </div>
                     <div class="w-0.5 h-4 bg-slate-700 ml-3 my-1"></div>
                     <div class="flex items-center gap-3 text-sm text-slate-500">
                         <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center">3</span>
-                        <span>Download PDF</span>
+                        <span>PDF herunterladen</span>
                     </div>
                 </div>
               </div>
@@ -262,7 +263,7 @@
           </div>
         </div>
         <div class="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-          <button type="button" (click)="closePdfWorkflow()" class="inline-flex w-full justify-center rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 sm:ml-3 sm:w-auto">Got it</button>
+          <button type="button" (click)="closePdfWorkflow()" class="inline-flex w-full justify-center rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 sm:ml-3 sm:w-auto">Verstanden</button>
         </div>
       </div>
     </div>

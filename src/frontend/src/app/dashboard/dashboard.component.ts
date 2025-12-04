@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ interface EditFormState {
     berufsbildnerEmail: string;
     berufsbildnerPhoneNumber: string;
     dateOfBirth: string;
-    [key: string]: string; // Index signature for template access
+    [key: string]: string;
 }
 
 @Component({
@@ -29,7 +29,6 @@ export class DashboardComponent implements OnInit {
   saveMessage = '';
   showPdfWorkflow = false;
   
-  // Edit form fields
   editForm: EditFormState = {
     schulnetzCalendarUrl: '',
     fullname: '',
@@ -44,7 +43,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef // Injected to force UI updates
   ) {}
 
   ngOnInit(): void {
@@ -58,11 +58,9 @@ export class DashboardComponent implements OnInit {
 
   loadFormData(): void {
     if (this.user) {
-      // Format date to yyyy-MM-dd if it exists
       let dateOfBirth = '';
       if (this.user.dateOfBirth) {
         const date = new Date(this.user.dateOfBirth);
-        // Handle timezone offset simply for display
         dateOfBirth = date.toISOString().split('T')[0];
       }
       
@@ -96,27 +94,28 @@ export class DashboardComponent implements OnInit {
     
     try {
       const client = this.authService.getClient();
-      // Only send fields that match the User interface expected by backend
-      // Using partial update logic typically found in auth services
       await client.updateUser(this.editForm);
       
-      this.saveMessage = 'Profile saved successfully!';
+      this.saveMessage = 'Profil erfolgreich gespeichert!';
       
-      // Short delay before closing to show success message
+      // Refresh session quietly
+      this.authService.refreshSession().catch(err => console.error('Session refresh error:', err));
+      
+      // Close form after delay
       setTimeout(() => {
           this.isEditing = false;
           this.saveMessage = '';
+          this.cdr.detectChanges(); // Update view when closing form
       }, 1000);
       
-      // Refresh session to get updated user data
-      this.authService.refreshSession().catch(err => console.error('Session refresh error:', err));
-      
     } catch (error) {
-      this.saveMessage = 'Failed to save profile';
+      this.saveMessage = 'Fehler beim Speichern des Profils';
       console.error('Save error:', error);
+    } finally {
+      // FORCE reset of saving state and FORCE UI update
+      this.isSaving = false;
+      this.cdr.detectChanges();
     }
-    
-    this.isSaving = false;
   }
 
   async logout(): Promise<void> {
@@ -128,7 +127,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // Workflow Handlers
   openPdfWorkflow(): void {
     this.showPdfWorkflow = true;
   }
