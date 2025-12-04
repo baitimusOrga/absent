@@ -41,7 +41,7 @@
                         <div class="stat-divider"></div>
                         <div class="stat-item">
                             <span class="stat-number">BBZW</span>
-                            <span class="stat-label">Unterstützt</span>
+                            <span class="stat-label">Support</span>
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@
                     <h3>Kalender-Sync</h3>
                     <p>Verbinde deinen Schulnetz-Kalender und wir erkennen automatisch deine Lektionen.</p>
                 </div>
-                <div class="feature-card" (mouseenter)="highlightFeature(2)" [class.highlighted]="highlightedFeature === 2">
+                <div class="feature-card with-image" (mouseenter)="highlightFeature(2)" [class.highlighted]="highlightedFeature === 2">
                     <div class="feature-icon-wrapper">
                         <div class="feature-icon purple">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -176,6 +176,9 @@
                     </div>
                     <h3>Offizielle Vorlagen</h3>
                     <p>Wir verwenden die originalen Schulformulare – akzeptiert von allen Lehrpersonen.</p>
+                    <div class="feature-image">
+                        <img src="images/absent-form.webp" alt="BBZW Absenzformular Vorschau" loading="lazy" />
+                    </div>
                 </div>
                 <div class="feature-card" (mouseenter)="highlightFeature(3)" [class.highlighted]="highlightedFeature === 3">
                     <div class="feature-icon-wrapper">
@@ -257,13 +260,13 @@
                         </span>
                     </div>
                 </div>
-                <div class="school-card">
+                <div class="school-card active">
                     <div class="school-logo">BBZG</div>
                     <div class="school-info">
                         <h3>Berufsbildungszentrum Gesundheit und Soziales</h3>
-                        <span class="school-status coming">
+                        <span class="school-status available">
                             <span class="status-dot"></span>
-                            Bald verfügbar
+                            Verfügbar
                         </span>
                     </div>
                 </div>
