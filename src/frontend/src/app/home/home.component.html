@@ -1,79 +1,328 @@
 <main class="landing relative overflow-hidden text-slate-50">
-	<div class="gradient"></div>
-	<div class="grain"></div>
-	<div class="container">
-		<header class="hero" id="top">
-			<span class="badge">Built by students who hate paperwork</span>
-			<h1 class="hero-title">
-				Absences sorted before your teacher asks.
-			</h1>
-			<p class="hero-copy">
-				Drop your Schulnetz calendar URL, confirm the classes you will miss, and Absent drafts the official form automatically. No spreadsheets, no guessing, just a ready-to-share PDF in under a minute.
-			</p>
-			<ul class="value-points">
-				<li>Guided three-step flow anyone can follow.</li>
-				<li>Smart defaults remember your details for the next request.</li>
-				<li>Clean exports that keep teachers and admins in the loop.</li>
-			</ul>
-			<div class="cta-group">
-				<a routerLink="/health" class="cta-btn">
-					See what we are building
-				</a>
-				
-			</div>
-		</header>
-		<section class="steps" id="flow">
-			<h2 class="section-title">From calendar link to signed form in 60 seconds</h2>
-			<div class="step-list">
-				<article class="step-item">
-					<span class="step-index">1</span>
-					<h3>Paste your Schulnetz URL</h3>
-					<p>We fetch upcoming lessons and spot future absences instantly.</p>
-				</article>
-				<article class="step-item">
-					<span class="step-index">2</span>
-					<h3>Toggle the lessons you will miss</h3>
-					<p>Absent remembers your guardians, classes, and reasons so updates take seconds.</p>
-				</article>
-				<article class="step-item">
-					<span class="step-index">3</span>
-					<h3>Download & share</h3>
-					<p>Export a polished PDF or send a direct link to teachers and keep the history forever.</p>
-				</article>
-			</div>
-		</section>
-		<section class="retention" id="retention">
-			<div class="retention-copy">
-				<h2 class="section-title">Stay with the tool that knows you</h2>
-				<p>
-					We built Absent to be the absence sidekick you keep coming back to. A living timeline tracks every submitted form, reminders nudge you before deadlines, and personal notes make sure nothing is forgotten.
-				</p>
-				<ul class="retention-points">
-					<li>Keep a searchable archive of every absence request.</li>
-					<li>Automatic drafts when your calendar shows a conflict again.</li>
-					<li>Share updates with parents or guardians in one click.</li>
-				</ul>
-			</div>
-			<aside class="retention-card">
-				<h3>Why another app?</h3>
-				<p>
-					Because variety matters. Our friends at
-					<a class="link" href="https://absendo.app" rel="noopener" target="_blank">absendo.app</a>
-					already offer a solid solution. Absent is our playful experiment to explore different ideas, smoother onboarding, and retention-focused features.
-				</p>
-				<p>
-					Competition keeps us all sharp, and you benefit from better tools no matter which one you choose.
-				</p>
-			</aside>
-		</section>
-		<section class="disclaimer-card" id="disclaimer">
-			<h3>Friendly heads-up</h3>
-			<p>
-				Absent is a fun side project created by students for students. There is no commercial backing, just curiosity and late-night coding sessions. Expect transparency, rapid iteration, and the occasional rough edge.
-			</p>
-			<p>
-				Want to keep us motivated? Share feedback, report bugs, or simply tell a friend. Let us know what would make you stay.
-			</p>
-		</section>
-	</div>
+    <div class="gradient-bg"></div>
+    <div class="grain-overlay"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section" id="top">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <span class="badge animate-pulse-glow">
+                        <span class="badge-dot"></span>
+                        Von Lernenden für Lernende entwickelt
+                    </span>
+                    <h1 class="hero-title">
+                        Absenzformulare in <span class="gradient-text">Sekunden</span> erstellt.
+                    </h1>
+                    <p class="hero-description">
+                        Verbinde deinen Schulnetz-Kalender, wähle die verpassten Lektionen aus, und Absent erstellt automatisch das offizielle Formular. Kein manuelles Ausfüllen mehr.
+                    </p>
+                    <div class="hero-cta">
+                        <a routerLink="/register" class="btn-primary">
+                            <span>Jetzt kostenlos starten</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <a href="#how-it-works" class="btn-secondary">
+                            <span>So funktioniert's</span>
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">60s</span>
+                            <span class="stat-label">Durchschnittliche Zeit</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-number">100%</span>
+                            <span class="stat-label">Kostenlos</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-number">BBZW</span>
+                            <span class="stat-label">Unterstützt</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="pdf-showcase" (mouseenter)="startPdfAnimation()" (mouseleave)="stopPdfAnimation()">
+                        <div class="pdf-glow"></div>
+                        <div class="pdf-container" [class.animated]="isPdfAnimating">
+                            <div class="pdf-header">
+                                <div class="pdf-logo">BBZW</div>
+                                <div class="pdf-title-block">
+                                    <span class="pdf-doc-title">Entschuldigung / Urlaubsgesuch</span>
+                                    <span class="pdf-subtitle">Automatisch generiert</span>
+                                </div>
+                            </div>
+                            <div class="pdf-content">
+                                <div class="pdf-field" [class.filling]="isPdfAnimating" style="--delay: 0.1s">
+                                    <span class="field-label">Name</span>
+                                    <span class="field-value">{{ animatedName }}</span>
+                                    <span class="field-cursor" *ngIf="isPdfAnimating && !animatedClass"></span>
+                                </div>
+                                <div class="pdf-field" [class.filling]="isPdfAnimating" style="--delay: 0.3s">
+                                    <span class="field-label">Klasse</span>
+                                    <span class="field-value">{{ animatedClass }}</span>
+                                    <span class="field-cursor" *ngIf="isPdfAnimating && animatedClass && !animatedDate"></span>
+                                </div>
+                                <div class="pdf-field" [class.filling]="isPdfAnimating" style="--delay: 0.5s">
+                                    <span class="field-label">Datum</span>
+                                    <span class="field-value">{{ animatedDate }}</span>
+                                </div>
+                                <div class="pdf-field wide" [class.filling]="isPdfAnimating" style="--delay: 0.7s">
+                                    <span class="field-label">Verpasste Lektionen</span>
+                                    <span class="field-value">{{ animatedLessons }}</span>
+                                </div>
+                                <div class="pdf-field wide" [class.filling]="isPdfAnimating" style="--delay: 0.9s">
+                                    <span class="field-label">Grund</span>
+                                    <span class="field-value">{{ animatedReason }}</span>
+                                </div>
+                            </div>
+                            <div class="pdf-footer">
+                                <div class="pdf-signature">
+                                    <span class="sig-label">Unterschrift Berufsbildner</span>
+                                    <div class="sig-line"></div>
+                                </div>
+                                <div class="pdf-stamp" [class.stamped]="showStamp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span>BEREIT</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="floating-elements">
+                            <div class="float-element calendar" [class.active]="isPdfAnimating">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12.75 12.75a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM7.5 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM8.25 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM9.75 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM10.5 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM12.75 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM14.25 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM15 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM16.5 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM15 12.75a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM16.5 13.5a.75.75 0 100-1.5.75.75 0 000 1.5z" />
+                                    <path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="float-element check" [class.active]="showStamp">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="float-element download" [class.active]="showStamp">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-2.25a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3v-2.25a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator">
+            <span>Mehr erfahren</span>
+            <div class="scroll-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.53 16.28a.75.75 0 01-1.06 0l-7.5-7.5a.75.75 0 011.06-1.06L12 14.69l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Features</span>
+                <h2 class="section-title">Alles was du brauchst, <span class="gradient-text">nichts was du nicht brauchst</span></h2>
+                <p class="section-description">Absent wurde entwickelt um den lästigen Papierkram so einfach wie möglich zu machen.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card large" (mouseenter)="highlightFeature(0)" [class.highlighted]="highlightedFeature === 0">
+                    <div class="feature-icon-wrapper">
+                        <div class="feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4.5 3.75a3 3 0 00-3 3v10.5a3 3 0 003 3h15a3 3 0 003-3V6.75a3 3 0 00-3-3h-15zm4.125 3a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zm-3.873 8.703a4.126 4.126 0 017.746 0 .75.75 0 01-.351.92 7.47 7.47 0 01-3.522.877 7.47 7.47 0 01-3.522-.877.75.75 0 01-.351-.92zM15 8.25a.75.75 0 000 1.5h3.75a.75.75 0 000-1.5H15zM14.25 12a.75.75 0 01.75-.75h3.75a.75.75 0 010 1.5H15a.75.75 0 01-.75-.75zm.75 2.25a.75.75 0 000 1.5h3.75a.75.75 0 000-1.5H15z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Automatische Datenfüllung</h3>
+                    <p>Deine persönlichen Daten werden gespeichert und automatisch in jedes neue Formular eingetragen. Einmal einrichten, immer nutzen.</p>
+                    <div class="feature-visual">
+                        <div class="auto-fill-demo">
+                            <div class="demo-field" *ngFor="let field of autoFillFields; let i = index" [style.--index]="i">
+                                <span class="demo-label">{{ field.label }}</span>
+                                <span class="demo-value" [class.filled]="highlightedFeature === 0">{{ field.value }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-card" (mouseenter)="highlightFeature(1)" [class.highlighted]="highlightedFeature === 1">
+                    <div class="feature-icon-wrapper">
+                        <div class="feature-icon orange">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.75 12.75a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM7.5 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM8.25 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM9.75 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM10.5 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM12.75 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM14.25 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM15 17.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM16.5 15.75a.75.75 0 100-1.5.75.75 0 000 1.5zM15 12.75a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM16.5 13.5a.75.75 0 100-1.5.75.75 0 000 1.5z" />
+                                <path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Kalender-Sync</h3>
+                    <p>Verbinde deinen Schulnetz-Kalender und wir erkennen automatisch deine Lektionen.</p>
+                </div>
+                <div class="feature-card" (mouseenter)="highlightFeature(2)" [class.highlighted]="highlightedFeature === 2">
+                    <div class="feature-icon-wrapper">
+                        <div class="feature-icon purple">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.502 6h7.128A3.375 3.375 0 0118 9.375v9.375a3 3 0 003-3V6.108c0-1.505-1.125-2.811-2.664-2.94a48.972 48.972 0 00-.673-.05A3 3 0 0015 1.5h-1.5a3 3 0 00-2.663 1.618c-.225.015-.45.032-.673.05C8.662 3.295 7.554 4.542 7.502 6zM13.5 3A1.5 1.5 0 0012 4.5h4.5A1.5 1.5 0 0015 3h-1.5z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M3 9.375C3 8.339 3.84 7.5 4.875 7.5h9.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 013 20.625V9.375zm9.586 4.594a.75.75 0 00-1.172-.938l-2.476 3.096-.908-.907a.75.75 0 00-1.06 1.06l1.5 1.5a.75.75 0 001.116-.062l3-3.75z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Offizielle Vorlagen</h3>
+                    <p>Wir verwenden die originalen Schulformulare – akzeptiert von allen Lehrpersonen.</p>
+                </div>
+                <div class="feature-card" (mouseenter)="highlightFeature(3)" [class.highlighted]="highlightedFeature === 3">
+                    <div class="feature-icon-wrapper">
+                        <div class="feature-icon blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Schnell & Einfach</h3>
+                    <p>In unter 60 Sekunden vom Start zum fertigen PDF – versprochen.</p>
+                </div>
+                <div class="feature-card" (mouseenter)="highlightFeature(4)" [class.highlighted]="highlightedFeature === 4">
+                    <div class="feature-icon-wrapper">
+                        <div class="feature-icon pink">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Sicher & Privat</h3>
+                    <p>Deine Daten gehören dir. Keine Weitergabe, keine Werbung, kein Tracking.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works-section" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">So funktioniert's</span>
+                <h2 class="section-title">In <span class="gradient-text">3 einfachen Schritten</span> zum fertigen Formular</h2>
+            </div>
+            <div class="steps-container">
+                <div class="step-card" *ngFor="let step of steps; let i = index" 
+                     [class.active]="activeStep === i"
+                     (mouseenter)="setActiveStep(i)">
+                    <div class="step-number">{{ i + 1 }}</div>
+                    <div class="step-content">
+                        <h3>{{ step.title }}</h3>
+                        <p>{{ step.description }}</p>
+                    </div>
+                    <div class="step-icon">
+                        <ng-container [ngSwitch]="i">
+                            <svg *ngSwitchCase="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M19.902 4.098a3.75 3.75 0 00-5.304 0l-4.5 4.5a3.75 3.75 0 001.035 6.037.75.75 0 01-.646 1.353 5.25 5.25 0 01-1.449-8.45l4.5-4.5a5.25 5.25 0 117.424 7.424l-1.757 1.757a.75.75 0 11-1.06-1.06l1.757-1.757a3.75 3.75 0 000-5.304zm-7.389 4.267a.75.75 0 011-.353 5.25 5.25 0 011.449 8.45l-4.5 4.5a5.25 5.25 0 11-7.424-7.424l1.757-1.757a.75.75 0 111.06 1.06l-1.757 1.757a3.75 3.75 0 105.304 5.304l4.5-4.5a3.75 3.75 0 00-1.035-6.037.75.75 0 01-.353-1z" clip-rule="evenodd" />
+                            </svg>
+                            <svg *ngSwitchCase="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M2.625 6.75a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0A.75.75 0 018.25 6h12a.75.75 0 010 1.5h-12a.75.75 0 01-.75-.75zM2.625 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zM7.5 12a.75.75 0 01.75-.75h12a.75.75 0 010 1.5h-12A.75.75 0 017.5 12zm-4.875 5.25a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875 0a.75.75 0 01.75-.75h12a.75.75 0 010 1.5h-12a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+                            </svg>
+                            <svg *ngSwitchCase="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-2.25a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3v-2.25a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+                            </svg>
+                        </ng-container>
+                    </div>
+                    <div class="step-connector" *ngIf="i < steps.length - 1"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schools Section -->
+    <section class="schools-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Schulen</span>
+                <h2 class="section-title">Unterstützte <span class="gradient-text">Berufsschulen</span></h2>
+                <p class="section-description">Wir erweitern laufend die Liste der unterstützten Schulen.</p>
+            </div>
+            <div class="schools-grid">
+                <div class="school-card active">
+                    <div class="school-logo">BBZW</div>
+                    <div class="school-info">
+                        <h3>Berufsbildungszentrum Wirtschaft, Informatik und Technik</h3>
+                        <span class="school-status available">
+                            <span class="status-dot"></span>
+                            Verfügbar
+                        </span>
+                    </div>
+                </div>
+                <div class="school-card">
+                    <div class="school-logo">BBZG</div>
+                    <div class="school-info">
+                        <h3>Berufsbildungszentrum Gesundheit und Soziales</h3>
+                        <span class="school-status coming">
+                            <span class="status-dot"></span>
+                            Bald verfügbar
+                        </span>
+                    </div>
+                </div>
+                <div class="school-card request">
+                    <div class="school-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="school-info">
+                        <h3>Deine Schule fehlt?</h3>
+                        <span class="school-request-text">Schreib uns und wir fügen sie hinzu!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-card">
+                <div class="cta-content">
+                    <h2>Bereit, Zeit zu sparen?</h2>
+                    <p>Erstelle dein erstes Absenzformular in unter einer Minute. Kostenlos und ohne Kreditkarte.</p>
+                    <div class="cta-buttons">
+                        <a routerLink="/register" class="btn-primary large">
+                            <span>Kostenlos registrieren</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="cta-decoration">
+                    <div class="decoration-circle"></div>
+                    <div class="decoration-circle"></div>
+                    <div class="decoration-circle"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disclaimer -->
+    <section class="disclaimer-section">
+        <div class="container">
+            <div class="disclaimer-card">
+                <div class="disclaimer-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="disclaimer-content">
+                    <h3>Hinweis</h3>
+                    <p>
+                        Absent ist ein Hobbyprojekt von Lernenden für Lernende. Es gibt keine kommerzielle Unterstützung – nur Neugierde und viele späte Coding-Sessions. Erwarte Transparenz, schnelle Updates und gelegentlich ein paar Ecken und Kanten.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
