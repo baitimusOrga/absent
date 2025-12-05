@@ -18,14 +18,15 @@ services:
       - mongo-data:/data/db
     restart: unless-stopped
 
-  backend:
+backend:
     image: ${REGISTRY_URL:-localhost:5000}/${APP_NAME:-absent}-backend:latest
     build:
       context: ./src/backend
       dockerfile: Dockerfile.prod
-    # This loads the generated .env file containing your secrets
+    # ADD THIS SECTION ----------------------
     env_file:
       - ./.env
+    # ---------------------------------------
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     depends_on:
