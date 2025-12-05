@@ -9,7 +9,7 @@ env:
   COMPOSE_FILE: "docker-compose.prod.yml"
   REGISTRY_URL: "192.168.1.7:5000"
   REGISTRY_USERNAME: "admin"
-  REGISTRY_PASSWORD: "CyMa2005!"
+  REGISTRY_PASSWORD: "CyMa2005!" # Hardcoded as requested
 
 jobs:
   build-and-push:
@@ -19,13 +19,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # WICHTIG: Der "Set up Docker Buildx" Schritt wurde HIER entfernt.
-      
       - name: Generate Dynamic Configuration
         run: |
+          # 1. Get the repo name
           RAW_NAME="${{ github.event.repository.name }}"
+          
+          # 2. Convert to lowercase (fixes 'invalid tag' error)
           LOWERCASE_NAME=$(echo "$RAW_NAME" | tr '[:upper:]' '[:lower:]')
           
+          # 3. Save to .env for Docker Compose to read
           echo "APP_NAME=$LOWERCASE_NAME" > .env
           echo "REGISTRY_URL=${{ env.REGISTRY_URL }}" >> .env
           
@@ -37,15 +39,9 @@ jobs:
           echo "${{ env.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY_URL }} -u "${{ env.REGISTRY_USERNAME }}" --password-stdin
 
       - name: Build Images
-        # --- FIX START ---
-        # Wir schalten den modernen "BuildKit" aus und nutzen den alten Builder.
-        # Der alte Builder braucht kein FUSE und funktioniert in LXC-Containern.
-        env:
-          DOCKER_BUILDKIT: 0
-          COMPOSE_DOCKER_CLI_BUILD: 0
-        # --- FIX ENDE ---
         run: |
-          echo "🏗️ Building services (Legacy Mode)..."
+          echo "🏗️ Building services..."
+          # Compose will now use the lowercase APP_NAME from .env
           docker compose -f ${{ env.COMPOSE_FILE }} build --no-cache
 
       - name: Push to Registry
