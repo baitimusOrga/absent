@@ -9,7 +9,8 @@ env:
   COMPOSE_FILE: "docker-compose.prod.yml"
   REGISTRY_URL: "192.168.1.7:5000"
   REGISTRY_USERNAME: "admin"
-  REGISTRY_PASSWORD: "CyMa2005!" # Hardcoded as requested
+  # SECURE: Password is now pulled from GitHub Secrets
+  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   
   # --- FIX STARTS HERE ---
   # These two lines disable the modern BuildKit engine.
