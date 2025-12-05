@@ -11,4 +11,5 @@ COPY .env.development .env
 
 EXPOSE 4200
 
+
 CMD ["npm", "run", "start"]
