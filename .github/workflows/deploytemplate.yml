@@ -21,7 +21,8 @@ env:
   COMPOSE_FILE: "docker-compose.prod.yml"
   REGISTRY_URL: "192.168.1.7:5000"
   REGISTRY_USERNAME: "admin"
-  REGISTRY_PASSWORD: "CyMa2005!" # Hardcoded as requested
+  # SECURE: Password is now pulled from GitHub Secrets
+  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   # =======================================================
 
 jobs:
@@ -53,6 +54,9 @@ jobs:
           echo "APP_NAME=$LOWERCASE_NAME" > .env
           echo "REGISTRY_URL=${{ env.REGISTRY_URL }}" >> .env
           
+          # Inject Database Password from Secrets
+          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env
+          
           # Define the dynamic deployment folder path
           echo "DEPLOY_DIR=/root/deployments/$LOWERCASE_NAME" >> $GITHUB_ENV
           
@@ -68,7 +72,7 @@ jobs:
       - name: Transfer Configuration
         run: |
           echo "📄 Copying docker-compose and .env..."
-          # This sends the generated .env (with lowercase name) to the target
+          # This sends the generated .env (with lowercase name AND secrets) to the target
           scp -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ env.COMPOSE_FILE }} .env ${{ env.APP_USER }}@${{ env.APP_HOST }}:${{ env.DEPLOY_DIR }}/
 
       # 4. SSH & PULL & RESTART
