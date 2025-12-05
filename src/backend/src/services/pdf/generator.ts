@@ -10,6 +10,10 @@ import { InternalServerError, NotFoundError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { FORM_TYPES } from '../../constants';
 
+// --- CACHE IMPLEMENTATION ---
+// Stores the raw PDF Buffers in memory
+const templateCache = new Map<string, Buffer>();
+
 /**
  * Security Helper: Safely truncate strings to prevent PDF rendering crashes
  * or massive memory consumption.
@@ -46,19 +50,42 @@ export const fillPdfForm = async (
   userData?: UserData
 ): Promise<Buffer> => {
   const pdfPath = path.join(__dirname, '../../../pdfs', template.filePath);
+  
+  let pdfBuffer: Buffer;
 
-  // Check if template file exists
-  if (!fs.existsSync(pdfPath)) {
-    logger.error('PDF template file not found', { path: pdfPath, school: template.school });
-    throw new NotFoundError(
-      `PDF template file not found for school ${template.school}`,
-      'TEMPLATE_FILE_NOT_FOUND'
-    );
+  // 1. Check Cache
+  if (templateCache.has(pdfPath)) {
+    // Return from memory (Fast)
+    pdfBuffer = templateCache.get(pdfPath)!;
+  } else {
+    // 2. Fallback to Disk (Slow)
+    
+    // Check if template file exists
+    if (!fs.existsSync(pdfPath)) {
+      logger.error('PDF template file not found', { path: pdfPath, school: template.school });
+      throw new NotFoundError(
+        `PDF template file not found for school ${template.school}`,
+        'TEMPLATE_FILE_NOT_FOUND'
+      );
+    }
+
+    try {
+      // Load PDF document synchronously (as requested)
+      pdfBuffer = fs.readFileSync(pdfPath);
+      
+      // 3. Save to Cache for next time
+      templateCache.set(pdfPath, pdfBuffer);
+      logger.info('Template cached into memory', { path: pdfPath });
+      
+    } catch (error) {
+       // Error handling for read failures
+       logger.error('Error reading PDF file', { error });
+       throw new InternalServerError('Failed to read PDF template', 'FILE_READ_ERROR');
+    }
   }
 
   try {
     // Load PDF document
-    const pdfBuffer = fs.readFileSync(pdfPath);
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const form = pdfDoc.getForm();
 
