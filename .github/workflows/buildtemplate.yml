@@ -10,6 +10,14 @@ env:
   REGISTRY_URL: "192.168.1.7:5000"
   REGISTRY_USERNAME: "admin"
   REGISTRY_PASSWORD: "CyMa2005!" # Hardcoded as requested
+  
+  # --- FIX STARTS HERE ---
+  # These two lines disable the modern BuildKit engine.
+  # This solves the "failed to mount ... permission denied" error
+  # common on self-hosted runners.
+  DOCKER_BUILDKIT: 0
+  COMPOSE_DOCKER_CLI_BUILD: 0
+  # --- FIX ENDS HERE ---
 
 jobs:
   build-and-push:
@@ -41,10 +49,17 @@ jobs:
       - name: Build Images
         run: |
           echo "🏗️ Building services..."
-          # Compose will now use the lowercase APP_NAME from .env
+          # Compose will now use the legacy builder due to the ENV vars above
           docker compose -f ${{ env.COMPOSE_FILE }} build --no-cache
 
       - name: Push to Registry
         run: |
           echo "⬆️ Uploading images..."
           docker compose -f ${{ env.COMPOSE_FILE }} push
+
+      # Optional: Clean up images to save disk space on your runner
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up..."
+          docker image prune -f
