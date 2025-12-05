@@ -16,8 +16,8 @@ import { SCHOOLS, FORM_TYPES } from '../../constants';
 // Security: Maximale Längen für Felder definieren, um DoS-Attacken zu verhindern
 const MAX_LENGTHS = {
   SHORT_TEXT: 100,  // Für Namen, Fächer, Klassen, etc.
-  DATE_TEXT: 50,    // Für Datumsangaben
-  LONG_TEXT: 800,   // Für Begründungen
+  DATE_TEXT: 100,    // Für Datumsangaben
+  LONG_TEXT: 400,   // Für Begründungen
   COMMENT: 500      // Für Bemerkungen
 };
 
