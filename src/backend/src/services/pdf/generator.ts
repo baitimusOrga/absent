@@ -1,7 +1,3 @@
-/**
- * PDF generation utilities
- */
-
 import { PDFDocument } from 'pdf-lib';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -10,40 +6,25 @@ import { InternalServerError, NotFoundError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { FORM_TYPES } from '../../constants';
 
-// --- CACHE IMPLEMENTATION ---
-// Stores the raw PDF Buffers in memory
 const templateCache = new Map<string, Buffer>();
 
-/**
- * Security Helper: Safely truncate strings to prevent PDF rendering crashes
- * or massive memory consumption.
- */
 const safeTruncate = (value: string | undefined | null, maxLength: number): string => {
   if (!value) return '';
   const str = String(value);
   return str.length > maxLength ? str.substring(0, maxLength) : str;
 };
 
-/**
- * Format date of birth from various formats to string
- */
 const formatDateOfBirth = (dateOfBirth: Date | string | undefined): string => {
   if (!dateOfBirth) return '';
-
   if (dateOfBirth instanceof Date) {
     return dateOfBirth.toISOString().split('T')[0];
   }
-
   if (typeof dateOfBirth === 'string') {
-    return safeTruncate(dateOfBirth, 50); // Auch Datum begrenzen
+    return safeTruncate(dateOfBirth, 50);
   }
-
   return '';
 };
 
-/**
- * Fill PDF form fields with data
- */
 export const fillPdfForm = async (
   template: PdfTemplate,
   data: PdfFillData,
@@ -53,16 +34,10 @@ export const fillPdfForm = async (
   
   let pdfBuffer: Buffer;
 
-  // 1. Check Cache
   if (templateCache.has(pdfPath)) {
-    // Return from memory (Fast)
     pdfBuffer = templateCache.get(pdfPath)!;
   } else {
-    // 2. Fallback to Disk (Slow)
-    
-    // Check if template file exists
     if (!fs.existsSync(pdfPath)) {
-      logger.error('PDF template file not found', { path: pdfPath, school: template.school });
       throw new NotFoundError(
         `PDF template file not found for school ${template.school}`,
         'TEMPLATE_FILE_NOT_FOUND'
@@ -70,52 +45,36 @@ export const fillPdfForm = async (
     }
 
     try {
-      // Load PDF document synchronously (as requested)
       pdfBuffer = fs.readFileSync(pdfPath);
-      
-      // 3. Save to Cache for next time
       templateCache.set(pdfPath, pdfBuffer);
-      logger.info('Template cached into memory', { path: pdfPath });
-      
     } catch (error) {
-       // Error handling for read failures
        logger.error('Error reading PDF file', { error });
        throw new InternalServerError('Failed to read PDF template', 'FILE_READ_ERROR');
     }
   }
 
   try {
-    // Load PDF document
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const form = pdfDoc.getForm();
-
     const { fieldMapping } = template;
 
-    // Auto-fill fields from user data with truncation
-    // Wir nutzen hier 100 Zeichen als Sicherheitslimit für Namen
     const studentName = safeTruncate(userData?.fullname, 100);
     const dateOfBirth = formatDateOfBirth(userData?.dateOfBirth);
     const berufsbildnerName = safeTruncate(userData?.berufsbildner, 100);
     const berufsbildnerEmail = safeTruncate(userData?.berufsbildnerEmail, 150);
 
-    // Fill basic fields with Hard Limits
-    // Selbst wenn die Validation versagt, schneiden wir hier ab um Abstürze zu verhindern.
     form.getTextField(fieldMapping.studentName).setText(studentName);
     form.getTextField(fieldMapping.geburtsdatum).setText(safeTruncate(data.geburtsdatum || dateOfBirth, 50));
     form.getTextField(fieldMapping.klasse).setText(safeTruncate(data.klasse, 50));
     form.getTextField(fieldMapping.datumDerAbsenz).setText(safeTruncate(data.datumDerAbsenz, 50));
-    
-    // Begründung hart auf 800 Zeichen limitieren (sollte mit Validation übereinstimmen)
     form.getTextField(fieldMapping.begruendung).setText(safeTruncate(data.begruendung, 800));
 
-    // Check appropriate checkbox for form type
     if (data.formType === FORM_TYPES.ENTSCHULDIGUNG && fieldMapping.entschuldigungCheckbox) {
       form.getCheckBox(fieldMapping.entschuldigungCheckbox).check();
     } else if (data.formType === FORM_TYPES.URLAUBSGESUCH && fieldMapping.urlaubsgesuchCheckbox) {
       form.getCheckBox(fieldMapping.urlaubsgesuchCheckbox).check();
     }
 
-    // Fill optional fields
     if (berufsbildnerName && fieldMapping.berufsbildnerNameUndTelefon) {
       form.getTextField(fieldMapping.berufsbildnerNameUndTelefon).setText(berufsbildnerName);
     }
@@ -132,7 +91,6 @@ export const fillPdfForm = async (
       form.getTextField(fieldMapping.bemerkung).setText(safeTruncate(data.bemerkung, 500));
     }
 
-    // Fill lesson rows
     const maxRows = Math.min(data.missedLessons.length, template.maxLessonRows);
     for (let i = 0; i < maxRows; i++) {
       const lesson = data.missedLessons[i];
@@ -144,7 +102,6 @@ export const fillPdfForm = async (
       const lehrpersonField = fieldMapping.lessonRows.lehrperson.replace('{row}', rowNum.toString());
 
       try {
-        // Auch hier Sicherheitslimits anwenden
         form.getTextField(anzahlField).setText(safeTruncate(lesson.anzahlLektionen, 50));
         form.getTextField(datumField).setText(safeTruncate(lesson.wochentagUndDatum, 50));
         form.getTextField(fachField).setText(safeTruncate(lesson.fach, 100));
@@ -157,19 +114,10 @@ export const fillPdfForm = async (
       }
     }
 
-    // Flatten form to prevent further editing
     form.flatten();
-
-    // Save and return PDF bytes
     const pdfBytes = await pdfDoc.save();
     return Buffer.from(pdfBytes);
   } catch (error) {
-    logger.error('Error filling PDF form', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      school: template.school,
-      formType: data.formType,
-    });
-
     if (error instanceof NotFoundError) {
       throw error;
     }
@@ -181,12 +129,8 @@ export const fillPdfForm = async (
   }
 };
 
-/**
- * Generate filename for PDF download
- */
 export const generatePdfFilename = (data: PdfFillData): string => {
   const timestamp = Date.now();
-  // Safe filename generation
   const sanitizedFormType = (data.formType || 'form').replace(/[^a-zA-Z0-9]/g, '_');
   const sanitizedSchool = (data.school || 'school').replace(/[^a-zA-Z0-9]/g, '_');
   
