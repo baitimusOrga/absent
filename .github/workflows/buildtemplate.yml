@@ -19,14 +19,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # --- FIX START ---
-      # Wir zwingen Docker, den 'docker'-Treiber (Host-Daemon) zu nutzen.
-      # Das verhindert den Versuch, 'fuse-overlayfs' zu verwenden.
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker
-      # --- FIX ENDE ---
+      # WICHTIG: Der "Set up Docker Buildx" Schritt wurde HIER entfernt.
       
       - name: Generate Dynamic Configuration
         run: |
@@ -44,9 +37,15 @@ jobs:
           echo "${{ env.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY_URL }} -u "${{ env.REGISTRY_USERNAME }}" --password-stdin
 
       - name: Build Images
+        # --- FIX START ---
+        # Wir schalten den modernen "BuildKit" aus und nutzen den alten Builder.
+        # Der alte Builder braucht kein FUSE und funktioniert in LXC-Containern.
+        env:
+          DOCKER_BUILDKIT: 0
+          COMPOSE_DOCKER_CLI_BUILD: 0
+        # --- FIX ENDE ---
         run: |
-          echo "🏗️ Building services..."
-          # Der Build nutzt nun automatisch den oben konfigurierten Buildx-Treiber
+          echo "🏗️ Building services (Legacy Mode)..."
           docker compose -f ${{ env.COMPOSE_FILE }} build --no-cache
 
       - name: Push to Registry
