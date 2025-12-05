@@ -105,9 +105,12 @@ export const validatePdfFillData = (data: any, userData?: UserData): PdfFillData
   }
 
   // Optional fields validation limits
-  if (data.klasse && !hasMaxLength(data.klasse, MAX_LENGTHS.SHORT_TEXT)) {
-    errors.klasse = [`Class must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
-  }
+  
+  // --- KLASSE VALIDATION REMOVED ---
+  // if (data.klasse && !hasMaxLength(data.klasse, MAX_LENGTHS.SHORT_TEXT)) {
+  //   errors.klasse = [`Class must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
+  // }
+  // ---------------------------------
 
   if (data.datumUnterschrift && !hasMaxLength(data.datumUnterschrift, MAX_LENGTHS.DATE_TEXT)) {
     errors.datumUnterschrift = [`Date must not exceed ${MAX_LENGTHS.DATE_TEXT} characters`];
