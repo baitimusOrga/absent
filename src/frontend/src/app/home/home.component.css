@@ -1112,3 +1112,17 @@
 		display: none;
 	}
 }
+@media (max-width: 1024px) {
+	.hero-content {
+		grid-template-columns: 1fr;
+		gap: 3rem;
+		text-align: center;
+	}
+
+	.hero-text {
+		order: 0;
+	}
+
+	.hero-visual {
+		order: 1;
+	}
