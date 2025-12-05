@@ -13,26 +13,46 @@ import {
 } from '../../utils/validation/validators';
 import { SCHOOLS, FORM_TYPES } from '../../constants';
 
+// Security: Maximale Längen für Felder definieren, um DoS-Attacken zu verhindern
+const MAX_LENGTHS = {
+  SHORT_TEXT: 100,  // Für Namen, Fächer, Klassen, etc.
+  DATE_TEXT: 50,    // Für Datumsangaben
+  LONG_TEXT: 800,   // Für Begründungen
+  COMMENT: 500      // Für Bemerkungen
+};
+
 /**
  * Validate missed lesson data
  */
 const validateMissedLesson = (lesson: any, index: number): MissedLesson => {
   const errors: Record<string, string[]> = {};
 
+  // Anzahl Lektionen
   if (!isNonEmptyString(lesson.anzahlLektionen)) {
     errors[`missedLessons[${index}].anzahlLektionen`] = ['Number of lessons is required'];
+  } else if (!hasMaxLength(lesson.anzahlLektionen, MAX_LENGTHS.SHORT_TEXT)) {
+    errors[`missedLessons[${index}].anzahlLektionen`] = [`Length must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
   }
 
+  // Datum
   if (!isNonEmptyString(lesson.wochentagUndDatum)) {
     errors[`missedLessons[${index}].wochentagUndDatum`] = ['Day and date are required'];
+  } else if (!hasMaxLength(lesson.wochentagUndDatum, MAX_LENGTHS.DATE_TEXT)) {
+    errors[`missedLessons[${index}].wochentagUndDatum`] = [`Length must not exceed ${MAX_LENGTHS.DATE_TEXT} characters`];
   }
 
+  // Fach
   if (!isNonEmptyString(lesson.fach)) {
     errors[`missedLessons[${index}].fach`] = ['Subject is required'];
+  } else if (!hasMaxLength(lesson.fach, MAX_LENGTHS.SHORT_TEXT)) {
+    errors[`missedLessons[${index}].fach`] = [`Subject must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
   }
 
+  // Lehrperson
   if (!isNonEmptyString(lesson.lehrperson)) {
     errors[`missedLessons[${index}].lehrperson`] = ['Teacher name is required'];
+  } else if (!hasMaxLength(lesson.lehrperson, MAX_LENGTHS.SHORT_TEXT)) {
+    errors[`missedLessons[${index}].lehrperson`] = [`Teacher name must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
   }
 
   if (Object.keys(errors).length > 0) {
@@ -73,10 +93,28 @@ export const validatePdfFillData = (data: any, userData?: UserData): PdfFillData
   // Validate required fields
   if (!isNonEmptyString(data.datumDerAbsenz)) {
     errors.datumDerAbsenz = ['Date of absence is required'];
+  } else if (!hasMaxLength(data.datumDerAbsenz, MAX_LENGTHS.DATE_TEXT)) {
+    errors.datumDerAbsenz = [`Date must not exceed ${MAX_LENGTHS.DATE_TEXT} characters`];
   }
 
   if (!isNonEmptyString(data.begruendung)) {
     errors.begruendung = ['Reason for absence is required'];
+  } else if (!hasMaxLength(data.begruendung, MAX_LENGTHS.LONG_TEXT)) {
+    // Security Fix: Blockiert zu lange Texte hier
+    errors.begruendung = [`Reason must not exceed ${MAX_LENGTHS.LONG_TEXT} characters`];
+  }
+
+  // Optional fields validation limits
+  if (data.klasse && !hasMaxLength(data.klasse, MAX_LENGTHS.SHORT_TEXT)) {
+    errors.klasse = [`Class must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
+  }
+
+  if (data.datumUnterschrift && !hasMaxLength(data.datumUnterschrift, MAX_LENGTHS.DATE_TEXT)) {
+    errors.datumUnterschrift = [`Date must not exceed ${MAX_LENGTHS.DATE_TEXT} characters`];
+  }
+
+  if (data.bemerkung && !hasMaxLength(data.bemerkung, MAX_LENGTHS.COMMENT)) {
+    errors.bemerkung = [`Comment must not exceed ${MAX_LENGTHS.COMMENT} characters`];
   }
 
   // Validate missed lessons array

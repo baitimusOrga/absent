@@ -11,6 +11,16 @@ import { logger } from '../../utils/logger';
 import { FORM_TYPES } from '../../constants';
 
 /**
+ * Security Helper: Safely truncate strings to prevent PDF rendering crashes
+ * or massive memory consumption.
+ */
+const safeTruncate = (value: string | undefined | null, maxLength: number): string => {
+  if (!value) return '';
+  const str = String(value);
+  return str.length > maxLength ? str.substring(0, maxLength) : str;
+};
+
+/**
  * Format date of birth from various formats to string
  */
 const formatDateOfBirth = (dateOfBirth: Date | string | undefined): string => {
@@ -21,7 +31,7 @@ const formatDateOfBirth = (dateOfBirth: Date | string | undefined): string => {
   }
 
   if (typeof dateOfBirth === 'string') {
-    return dateOfBirth;
+    return safeTruncate(dateOfBirth, 50); // Auch Datum begrenzen
   }
 
   return '';
@@ -54,18 +64,22 @@ export const fillPdfForm = async (
 
     const { fieldMapping } = template;
 
-    // Auto-fill fields from user data
-    const studentName = userData?.fullname || '';
+    // Auto-fill fields from user data with truncation
+    // Wir nutzen hier 100 Zeichen als Sicherheitslimit für Namen
+    const studentName = safeTruncate(userData?.fullname, 100);
     const dateOfBirth = formatDateOfBirth(userData?.dateOfBirth);
-    const berufsbildnerName = userData?.berufsbildner || '';
-    const berufsbildnerEmail = userData?.berufsbildnerEmail || '';
+    const berufsbildnerName = safeTruncate(userData?.berufsbildner, 100);
+    const berufsbildnerEmail = safeTruncate(userData?.berufsbildnerEmail, 150);
 
-    // Fill basic fields
+    // Fill basic fields with Hard Limits
+    // Selbst wenn die Validation versagt, schneiden wir hier ab um Abstürze zu verhindern.
     form.getTextField(fieldMapping.studentName).setText(studentName);
-    form.getTextField(fieldMapping.geburtsdatum).setText(data.geburtsdatum || dateOfBirth);
-    form.getTextField(fieldMapping.klasse).setText(data.klasse || '');
-    form.getTextField(fieldMapping.datumDerAbsenz).setText(data.datumDerAbsenz);
-    form.getTextField(fieldMapping.begruendung).setText(data.begruendung);
+    form.getTextField(fieldMapping.geburtsdatum).setText(safeTruncate(data.geburtsdatum || dateOfBirth, 50));
+    form.getTextField(fieldMapping.klasse).setText(safeTruncate(data.klasse, 50));
+    form.getTextField(fieldMapping.datumDerAbsenz).setText(safeTruncate(data.datumDerAbsenz, 50));
+    
+    // Begründung hart auf 800 Zeichen limitieren (sollte mit Validation übereinstimmen)
+    form.getTextField(fieldMapping.begruendung).setText(safeTruncate(data.begruendung, 800));
 
     // Check appropriate checkbox for form type
     if (data.formType === FORM_TYPES.ENTSCHULDIGUNG && fieldMapping.entschuldigungCheckbox) {
@@ -84,11 +98,11 @@ export const fillPdfForm = async (
     }
 
     if (data.datumUnterschrift && fieldMapping.datumUnterschrift) {
-      form.getTextField(fieldMapping.datumUnterschrift).setText(data.datumUnterschrift);
+      form.getTextField(fieldMapping.datumUnterschrift).setText(safeTruncate(data.datumUnterschrift, 50));
     }
 
     if (data.bemerkung && fieldMapping.bemerkung) {
-      form.getTextField(fieldMapping.bemerkung).setText(data.bemerkung);
+      form.getTextField(fieldMapping.bemerkung).setText(safeTruncate(data.bemerkung, 500));
     }
 
     // Fill lesson rows
@@ -103,10 +117,11 @@ export const fillPdfForm = async (
       const lehrpersonField = fieldMapping.lessonRows.lehrperson.replace('{row}', rowNum.toString());
 
       try {
-        form.getTextField(anzahlField).setText(lesson.anzahlLektionen);
-        form.getTextField(datumField).setText(lesson.wochentagUndDatum);
-        form.getTextField(fachField).setText(lesson.fach);
-        form.getTextField(lehrpersonField).setText(lesson.lehrperson);
+        // Auch hier Sicherheitslimits anwenden
+        form.getTextField(anzahlField).setText(safeTruncate(lesson.anzahlLektionen, 50));
+        form.getTextField(datumField).setText(safeTruncate(lesson.wochentagUndDatum, 50));
+        form.getTextField(fachField).setText(safeTruncate(lesson.fach, 100));
+        form.getTextField(lehrpersonField).setText(safeTruncate(lesson.lehrperson, 100));
       } catch (err) {
         logger.warn(`Could not fill lesson row ${rowNum}`, {
           error: err instanceof Error ? err.message : 'Unknown error',
@@ -144,6 +159,9 @@ export const fillPdfForm = async (
  */
 export const generatePdfFilename = (data: PdfFillData): string => {
   const timestamp = Date.now();
-  const sanitizedFormType = data.formType.replace(/\s+/g, '_');
-  return `${data.school}_${sanitizedFormType}_${timestamp}.pdf`;
+  // Safe filename generation
+  const sanitizedFormType = (data.formType || 'form').replace(/[^a-zA-Z0-9]/g, '_');
+  const sanitizedSchool = (data.school || 'school').replace(/[^a-zA-Z0-9]/g, '_');
+  
+  return `${sanitizedSchool}_${sanitizedFormType}_${timestamp}.pdf`;
 };
