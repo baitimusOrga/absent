@@ -4,21 +4,37 @@
 
 import type { PdfFillData, MissedLesson, UserData } from '../../types/pdf.types';
 import { ValidationError } from '../../utils/errors';
-import {
-  isNonEmptyString,
-  isValidEnum,
-  hasMinLength,
-  hasMaxLength,
-  sanitizeString,
-} from '../../utils/validation/validators';
 import { SCHOOLS, FORM_TYPES } from '../../constants';
 
-// Security: Maximale Längen für Felder definieren, um DoS-Attacken zu verhindern
+// --- INLINE VALIDATORS (Moved here to ensure stability) ---
+
+const isNonEmptyString = (value: any): value is string => {
+  return typeof value === 'string' && value.trim().length > 0;
+};
+
+// Check max length for STRINGS
+const hasMaxLength = (value: string, max: number): boolean => {
+  if (typeof value !== 'string') return false;
+  return value.length <= max;
+};
+
+const isValidEnum = (value: any, enumObj: object): boolean => {
+  return Object.values(enumObj).includes(value);
+};
+
+const sanitizeString = (str: string): string => {
+  if (!str) return '';
+  return str.trim();
+};
+
+// ----------------------------------------------------------------
+
+// Security: Define max lengths to prevent DoS attacks
 const MAX_LENGTHS = {
-  SHORT_TEXT: 100,  // Für Namen, Fächer, Klassen, etc.
-  DATE_TEXT: 100,    // Für Datumsangaben
-  LONG_TEXT: 400,   // Für Begründungen
-  COMMENT: 500      // Für Bemerkungen
+  SHORT_TEXT: 100,  // Names, subjects, etc.
+  DATE_TEXT: 100,   // Dates
+  LONG_TEXT: 400,   // Reasons
+  COMMENT: 500      // Comments
 };
 
 /**
@@ -27,28 +43,28 @@ const MAX_LENGTHS = {
 const validateMissedLesson = (lesson: any, index: number): MissedLesson => {
   const errors: Record<string, string[]> = {};
 
-  // Anzahl Lektionen
+  // Number of lessons
   if (!isNonEmptyString(lesson.anzahlLektionen)) {
     errors[`missedLessons[${index}].anzahlLektionen`] = ['Number of lessons is required'];
   } else if (!hasMaxLength(lesson.anzahlLektionen, MAX_LENGTHS.SHORT_TEXT)) {
     errors[`missedLessons[${index}].anzahlLektionen`] = [`Length must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
   }
 
-  // Datum
+  // Date
   if (!isNonEmptyString(lesson.wochentagUndDatum)) {
     errors[`missedLessons[${index}].wochentagUndDatum`] = ['Day and date are required'];
   } else if (!hasMaxLength(lesson.wochentagUndDatum, MAX_LENGTHS.DATE_TEXT)) {
     errors[`missedLessons[${index}].wochentagUndDatum`] = [`Length must not exceed ${MAX_LENGTHS.DATE_TEXT} characters`];
   }
 
-  // Fach
+  // Subject
   if (!isNonEmptyString(lesson.fach)) {
     errors[`missedLessons[${index}].fach`] = ['Subject is required'];
   } else if (!hasMaxLength(lesson.fach, MAX_LENGTHS.SHORT_TEXT)) {
     errors[`missedLessons[${index}].fach`] = [`Subject must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
   }
 
-  // Lehrperson
+  // Teacher
   if (!isNonEmptyString(lesson.lehrperson)) {
     errors[`missedLessons[${index}].lehrperson`] = ['Teacher name is required'];
   } else if (!hasMaxLength(lesson.lehrperson, MAX_LENGTHS.SHORT_TEXT)) {
@@ -73,7 +89,7 @@ const validateMissedLesson = (lesson: any, index: number): MissedLesson => {
 export const validatePdfFillData = (data: any, userData?: UserData): PdfFillData => {
   const errors: Record<string, string[]> = {};
 
-  // Validate school (can come from data or user profile)
+  // Validate school
   const school = data.school || userData?.school;
   if (!school) {
     errors.school = ['School is required'];
@@ -100,12 +116,9 @@ export const validatePdfFillData = (data: any, userData?: UserData): PdfFillData
   if (!isNonEmptyString(data.begruendung)) {
     errors.begruendung = ['Reason for absence is required'];
   } else if (!hasMaxLength(data.begruendung, MAX_LENGTHS.LONG_TEXT)) {
-    // Security Fix: Blockiert zu lange Texte hier
     errors.begruendung = [`Reason must not exceed ${MAX_LENGTHS.LONG_TEXT} characters`];
   }
 
-  // Optional fields validation limits
-  
   // --- KLASSE VALIDATION REMOVED ---
   // if (data.klasse && !hasMaxLength(data.klasse, MAX_LENGTHS.SHORT_TEXT)) {
   //   errors.klasse = [`Class must not exceed ${MAX_LENGTHS.SHORT_TEXT} characters`];
@@ -123,11 +136,11 @@ export const validatePdfFillData = (data: any, userData?: UserData): PdfFillData
   // Validate missed lessons array
   if (!Array.isArray(data.missedLessons)) {
     errors.missedLessons = ['Missed lessons must be an array'];
-  } else if (!hasMaxLength(data.missedLessons, 7)) {
+  } else if (data.missedLessons.length > 7) { 
+    // ^ FIX: Use .length directly here instead of hasMaxLength validator
     errors.missedLessons = ['Maximum 7 missed lessons allowed'];
   }
 
-  // Throw validation error if any errors found
   if (Object.keys(errors).length > 0) {
     throw new ValidationError('Invalid PDF fill data', errors);
   }
@@ -137,7 +150,6 @@ export const validatePdfFillData = (data: any, userData?: UserData): PdfFillData
     ? data.missedLessons.map((lesson: any, index: number) => validateMissedLesson(lesson, index))
     : [];
 
-  // Return validated and sanitized data
   return {
     school: school as any,
     formType: data.formType,
