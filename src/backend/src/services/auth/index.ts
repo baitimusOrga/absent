@@ -13,6 +13,8 @@ import { logger } from '../../utils/logger';
  * Get MongoDB instance for Better Auth
  * Uses separate client to avoid conflicts with main application connection
  */
+
+
 const getMongoDbForAuth = () => {
   try {
     const dbConfig = loadDatabaseConfig();

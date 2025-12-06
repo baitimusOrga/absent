@@ -15,11 +15,8 @@ export interface ProcessedEvent extends CalendarEvent {
 
 export const fetchCalendarData = async (calendarUrl: string): Promise<any> => {
   try {
-    const urlToFetch = calendarUrl.includes('schulnetz.lu.ch')
-      ? `https://api.absendo.app/proxy?url=${encodeURIComponent(calendarUrl)}`
-      : calendarUrl;
     
-    const response = await fetch(urlToFetch);
+    const response = await fetch(calendarUrl);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch calendar: ${response.status} ${response.statusText}`);
