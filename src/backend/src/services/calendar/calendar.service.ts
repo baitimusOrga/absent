@@ -2,6 +2,18 @@ import ical from 'ical';
 import { logger } from '../../utils/logger';
 import { InternalServerError } from '../../utils/errors';
 
+// --- CONFIGURATION ---
+
+// REPLACE THIS with your actual Cloudflare Worker URL
+const PROXY_WORKER_URL = 'https://falling-bush-3db5.breachmarket.workers.dev';
+
+// Cache duration: 15 minutes (in milliseconds)
+const CACHE_DURATION = 15 * 60 * 1000;
+
+// Max simultaneous network connections allowed
+const MAX_CONCURRENT_REQUESTS = 5;
+
+// --- INTERFACES ---
 export interface CalendarEvent {
   datum: string;
   fach: string;
@@ -13,44 +25,146 @@ export interface ProcessedEvent extends CalendarEvent {
   count: number;
 }
 
-export const fetchCalendarData = async (calendarUrl: string): Promise<any> => {
-  try {
-    
-    const response = await fetch(calendarUrl);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch calendar: ${response.status} ${response.statusText}`);
-    }
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+}
 
-    const icsData = await response.text();
-    
-    if (icsData.includes('UID NOT FOUND') || icsData.includes('ERROR') || icsData.length < 50) {
-      logger.warn('Received invalid ICS data', { 
-        response: icsData.substring(0, 200)
-      });
-      throw new Error('Invalid calendar data received. The calendar URL may be expired or incorrect.');
-    }
-    
-    const events = ical.parseICS(icsData);
-    const eventCount = Object.keys(events).length;
-    
-    if (eventCount === 0) {
-      logger.warn('No events found in calendar data');
-    }
-    
-    return events;
-  } catch (error) {
-    logger.error('Error fetching calendar data', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      url: calendarUrl,
-    });
-    
-    throw new InternalServerError(
-      `Failed to fetch calendar data: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      'CALENDAR_FETCH_ERROR'
-    );
+// --- STATE MANAGEMENT ---
+
+// Cache: URL -> { data, timestamp }
+const calendarCache = new Map<string, CacheEntry>();
+
+// In-flight: URL -> Promise (prevents duplicate requests for the same URL)
+const inflightRequests = new Map<string, Promise<any>>();
+
+// Queue: List of functions waiting to fetch
+const requestQueue: Array<() => void> = [];
+let activeRequestCount = 0;
+
+// --- QUEUE LOGIC ---
+
+/**
+ * Tries to process the next item in the queue.
+ */
+const processQueue = () => {
+  if (activeRequestCount >= MAX_CONCURRENT_REQUESTS || requestQueue.length === 0) {
+    return;
+  }
+  
+  const nextTask = requestQueue.shift();
+  if (nextTask) {
+    activeRequestCount++;
+    nextTask();
   }
 };
+
+/**
+ * Wraps the native fetch in a queue system.
+ * It will wait until a slot is free before executing the network call.
+ */
+const queuedFetch = (url: string): Promise<Response> => {
+  return new Promise((resolve, reject) => {
+    const task = async () => {
+      try {
+        const response = await fetch(url);
+        resolve(response);
+      } catch (err) {
+        reject(err);
+      } finally {
+        activeRequestCount--;
+        processQueue(); // When done, let the next one in line proceed
+      }
+    };
+    
+    requestQueue.push(task);
+    processQueue();
+  });
+};
+
+// --- MAIN SERVICE FUNCTION ---
+
+export const fetchCalendarData = async (calendarUrl: string): Promise<any> => {
+  const now = Date.now();
+
+  // 1. CACHE CHECK
+  if (calendarCache.has(calendarUrl)) {
+    const cached = calendarCache.get(calendarUrl)!;
+    if ((now - cached.timestamp) < CACHE_DURATION) {
+      // logger.debug('Serving calendar from cache', { url: calendarUrl });
+      return cached.data;
+    }
+  }
+
+  // 2. IN-FLIGHT CHECK (Deduplication)
+  // If a request for this URL is already running, wait for it instead of starting a new one.
+  if (inflightRequests.has(calendarUrl)) {
+    return inflightRequests.get(calendarUrl);
+  }
+
+  // 3. EXECUTE FETCH
+  const fetchPromise = (async () => {
+    try {
+      // Construct the Proxy URL
+      // We encode the target URL to pass it safely as a query parameter
+      const targetUrl = `${PROXY_WORKER_URL}?url=${encodeURIComponent(calendarUrl)}`;
+      
+      const response = await queuedFetch(targetUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch calendar: ${response.status} ${response.statusText}`);
+      }
+
+      const icsData = await response.text();
+      
+      // Validation checks
+      if (icsData.includes('UID NOT FOUND') || icsData.includes('ERROR') || icsData.length < 50) {
+        logger.warn('Received invalid ICS data', { responseSnippet: icsData.substring(0, 100) });
+        throw new Error('Invalid calendar data received. The calendar URL may be expired or incorrect.');
+      }
+      
+      const events = ical.parseICS(icsData);
+      
+      // Update Cache
+      calendarCache.set(calendarUrl, {
+        data: events,
+        timestamp: Date.now()
+      });
+      
+      const eventCount = Object.keys(events).length;
+      if (eventCount === 0) {
+        logger.warn('No events found in calendar data');
+      }
+
+      return events;
+
+    } catch (error) {
+      logger.error('Error fetching calendar data', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        url: calendarUrl,
+      });
+      
+      // Fallback: If network fails but we have old cache, return that instead of crashing
+      if (calendarCache.has(calendarUrl)) {
+        logger.warn('Serving stale cache due to fetch error', { url: calendarUrl });
+        return calendarCache.get(calendarUrl)!.data;
+      }
+
+      throw new InternalServerError(
+        `Failed to fetch calendar data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'CALENDAR_FETCH_ERROR'
+      );
+    } finally {
+      // Remove from inflight map so new requests can happen later
+      inflightRequests.delete(calendarUrl);
+    }
+  })();
+
+  inflightRequests.set(calendarUrl, fetchPromise);
+  return fetchPromise;
+};
+
+
 
 const extractClasse = (title: string): string => {
   const matches = title.match(/[SWER]-[A-Z]+\d{2}[a-zA-Z]+(?:-LO)?/g);
