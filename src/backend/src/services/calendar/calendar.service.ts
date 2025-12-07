@@ -5,7 +5,7 @@ import { InternalServerError } from '../../utils/errors';
 // --- CONFIGURATION ---
 
 // REPLACE THIS with your actual Cloudflare Worker URL
-const PROXY_WORKER_URL = 'https://falling-bush-3db5.breachmarket.workers.dev';
+const PROXY_WORKER_URL = 'https://absent-proxy.breachmarket.workers.dev';
 
 // Cache duration: 15 minutes (in milliseconds)
 const CACHE_DURATION = 15 * 60 * 1000;
