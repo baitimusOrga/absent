@@ -11,7 +11,7 @@ const PROXY_WORKER_URL = 'https://absent-proxy.breachmarket.workers.dev';
 const CACHE_DURATION = 15 * 60 * 1000;
 
 // Max simultaneous network connections allowed
-const MAX_CONCURRENT_REQUESTS = 10;
+const MAX_CONCURRENT_REQUESTS = 15;
 
 // --- INTERFACES ---
 export interface CalendarEvent {
