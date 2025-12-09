@@ -4,14 +4,18 @@ import { InternalServerError } from '../../utils/errors';
 
 // --- CONFIGURATION ---
 
-// REPLACE THIS with your actual Cloudflare Worker URL
-const PROXY_WORKER_URL = 'https://absent-proxy.breachmarket.workers.dev';
+// Configured via environment variables
+const PROXY_WORKER_URL = process.env.PROXY_WORKER_URL || '';
+
+if (!PROXY_WORKER_URL) {
+  logger.warn('PROXY_WORKER_URL is not set in environment variables');
+}
 
 // Cache duration: 15 minutes (in milliseconds)
 const CACHE_DURATION = 15 * 60 * 1000;
 
 // Max simultaneous network connections allowed
-const MAX_CONCURRENT_REQUESTS = 15;
+const MAX_CONCURRENT_REQUESTS = 10;
 
 // --- INTERFACES ---
 export interface CalendarEvent {
