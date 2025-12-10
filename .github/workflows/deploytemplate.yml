@@ -1,0 +1,125 @@
+name: Deploy to LXC
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build & Push To Registry"]
+    types:
+      - completed
+
+env:
+  # =======================================================
+  # 🛠️ CONFIGURATION
+  # =======================================================
+  # The Target IP (Your "runner lxc" / application server)
+  APP_HOST: "192.168.1.55"
+  APP_USER: "root"
+  
+  # Path to the SSH key ON THE BUILD SERVER (runner)
+  SSH_KEY_PATH: "/home/ghrunner/.ssh/id_rsa"
+  
+  COMPOSE_FILE: "docker-compose.prod.yml"
+  REGISTRY_URL: "192.168.1.7:5000"
+  REGISTRY_USERNAME: "admin"
+  # SECURE: Password is now pulled from GitHub Secrets
+  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+  # =======================================================
+
+jobs:
+  deploy:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout Code (workflow_run)
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+          fetch-depth: 0
+
+      - name: Checkout Code
+        if: ${{ github.event_name != 'workflow_run' }}
+        uses: actions/checkout@v3
+
+      
+      - name: Generate Dynamic Configuration
+        run: |
+          RAW_NAME="${{ github.event.repository.name }}"
+          LOWERCASE_NAME=$(echo "$RAW_NAME" | tr '[:upper:]' '[:lower:]')
+          
+          # --- 1. Define Variables ---
+          # Non-sensitive values go here directly
+          DB_USER="absent"
+          DB_NAME="absent"
+          
+          # Sensitive password comes from Secrets
+          DB_PASS="${{ secrets.MONGO_ROOT_PASSWORD }}"
+          
+          # --- 2. Write to .env file ---
+          echo "APP_NAME=$LOWERCASE_NAME" > .env
+          echo "REGISTRY_URL=${{ env.REGISTRY_URL }}" >> .env
+          
+          # Auth & Google Secrets
+          echo "BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          
+          # Database Config (Written to .env for Docker Compose)
+          echo "MONGO_ROOT_USERNAME=$DB_USER" >> .env
+          echo "MONGO_ROOT_PASSWORD=$DB_PASS" >> .env
+          echo "MONGO_DB=$DB_NAME" >> .env
+          
+          # Backend Connection String (Constructed dynamically)
+          echo "MONGO_URI=mongodb://${DB_USER}:${DB_PASS}@mongo:27017/${DB_NAME}?authSource=admin" >> .env
+          
+          # Public Config
+          echo "NODE_ENV=production" >> .env
+          echo "CORS_ENABLED=true" >> .env
+          echo "CORS_ORIGIN=https://absent.one" >> .env
+          echo "BETTER_AUTH_URL=https://api.absent.one" >> .env
+          
+          # Add Proxy URL from Secrets
+          echo "PROXY_WORKER_URL=${{ secrets.PROXY_WORKER_URL }}" >> .env
+          
+          echo "DEPLOY_DIR=/root/deployments/$LOWERCASE_NAME" >> $GITHUB_ENV
+          echo "✅ Configured deployment for: $LOWERCASE_NAME"
+      # 2. PREPARE REMOTE DIRECTORY
+      - name: Create Remote Directory
+        run: |
+          echo "📂 Ensuring folder exists on ${{ env.APP_HOST }}..."
+          ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ env.APP_USER }}@${{ env.APP_HOST }} "mkdir -p ${{ env.DEPLOY_DIR }}"
+
+      # 3. TRANSFER FILES
+      - name: Transfer Configuration
+        run: |
+          echo "📄 Copying docker-compose and .env..."
+          # This sends the generated .env (with lowercase name AND secrets) to the target
+          scp -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ env.COMPOSE_FILE }} .env ${{ env.APP_USER }}@${{ env.APP_HOST }}:${{ env.DEPLOY_DIR }}/
+
+      # 4. SSH & PULL & RESTART
+      - name: Remote Restart
+        run: |
+          echo "🚀 Connecting to remote server ${{ env.APP_HOST }}..."
+          ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ env.APP_USER }}@${{ env.APP_HOST }} <<'EOF'
+            
+            # Go to the specific project folder
+            cd ${{ env.DEPLOY_DIR }}
+            
+            # Authenticate to allow pulling
+            echo "🔐 Logging in to ${{ env.REGISTRY_URL }}"
+            echo "${{ env.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY_URL }} -u "${{ env.REGISTRY_USERNAME }}" --password-stdin
+
+            # Pull the image (Docker Compose reads APP_NAME from the .env we transferred)
+            echo "⬇️ Pulling latest image..."
+            docker compose -f ${{ env.COMPOSE_FILE }} pull
+            
+            # Restart the app
+            echo "🔄 Restarting container..."
+            # -d is CRITICAL here to let the workflow finish while the app keeps running
+            docker compose -f ${{ env.COMPOSE_FILE }} up -d --remove-orphans
+            
+            # Clean up old images
+            docker image prune -f
+          EOF
