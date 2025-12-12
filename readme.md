@@ -51,6 +51,9 @@ As a student myself, I realized how much time was wasted manually looking up tea
 * **Contact:** [absentsupportme@proton.me](mailto:absentsupportme@proton.me)
 * **Support:** If you find a bug or have a suggestion, feel free to reach out!
 
+### ⚖️ License
+This project is under the GNU General Public License. See the [LICENSE](LICENSE) file for the full license text.
+
 ---
 
 *Disclaimer: Absent is a private project and is not officially affiliated with the Canton of Lucerne or the Schulnetz platform. It simply automates the filling of publicly available forms.* 
