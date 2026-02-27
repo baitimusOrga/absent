@@ -15,6 +15,7 @@ export class RegisterComponent {
   name = '';
   email = '';
   password = '';
+  showPassword = false;
   consent = false;
   error = '';
   loading = false;
@@ -73,5 +74,9 @@ export class RegisterComponent {
       console.error(err);
       this.loading = false;
     }
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 }
